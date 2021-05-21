@@ -1,7 +1,8 @@
-import { createServer } from 'http';                                                       // import http package
-import app from './app.js';                                                       // import app.js
-
 /*****  Return a valid port, whether it's a number or a chain  *****/
+
+const http = require('http');
+const app = require('./app');
+
 const normalizePort = val => {
     const port = parseInt(val, 10);
     
@@ -38,7 +39,7 @@ const errorHandler = error => {
     }
 };
 
-const server = createServer(app);                                                  // create a server using app.js 
+const server = http.createServer(app);                                                  // create a server using app.js 
 
 /*****  launch the server, handle errors, listen to the port to connect and execute the console  *****/
 server.on('error', errorHandler);

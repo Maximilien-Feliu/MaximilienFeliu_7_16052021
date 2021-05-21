@@ -1,25 +1,21 @@
-import express from 'express';                                         // node framework express
-import { Sequelize } from 'sequelize';
-import mysql from 'mysql2';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import path from 'path';
+const express = require( 'express');                                         // node framework express
+const dotenv = require( 'dotenv');
+const cors = require( 'cors');
+const path = require( 'path');
+const db = require( './config/database.js');
+
+const userRoutes = require( './routes/user.js');
 
 
-/*****  load environment variables from the .env file into process.env  *****/
+/*****  load environment variables = require( the .env file into process.env  *****/
 dotenv.config();
 
 console.log(process.env.NODE_ENV);
 console.log(process.env.NAME_SESSION);
 console.log(process.env.HOST);  
 
-const db = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
-    host: 'localhost',
-    dialect: 'mysql' 
-});
-
 try {
-    await db.authenticate();
+     db.authenticate();
     console.log('Connection has been established successfully.');
 } catch (error) {
     console.error('Unable to connect to the database:', error);
@@ -37,9 +33,11 @@ app.use((req, res, next) => {
 app.use(cors());
 
 /*****  middleware to handle POST requests (extract the JSON Object)  
- *****  set a limit of request body size to avoid large request bodies from attackers  *****/
+ *****  set a limit of request body size to avoid large request bodies = require( attackers  *****/
  app.use(express.urlencoded({ extended: true, limit: "100kb" }));          // parse the url encoded data with the qs library
  app.use(express.json({ limit: "100kb" }));                                // transform the request body to json 
 
+ app.use('/api/auth', userRoutes);
 
-export default app;                                                       // export the application
+
+module.exports = app;                                                       // export the application
