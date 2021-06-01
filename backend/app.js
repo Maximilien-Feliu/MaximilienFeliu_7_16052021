@@ -6,8 +6,7 @@ const db = require( './config/database.js');
 
 const userRoutes = require( './routes/user.js');
 
-
-/*****  load environment variables = require( the .env file into process.env  *****/
+/*****  load environment variables  *****/
 dotenv.config();
 
 console.log(process.env.NODE_ENV);
@@ -15,7 +14,7 @@ console.log(process.env.NAME_SESSION);
 console.log(process.env.HOST);  
 
 try {
-     db.authenticate();
+    db.authenticate();
     console.log('Connection has been established successfully.');
 } catch (error) {
     console.error('Unable to connect to the database:', error);
@@ -32,12 +31,13 @@ app.use((req, res, next) => {
 
 app.use(cors());
 
+app.use('/images', express.static(path.join(__dirname, 'images')));       // respond to the request and serve the static folder 'images'
+
 /*****  middleware to handle POST requests (extract the JSON Object)  
  *****  set a limit of request body size to avoid large request bodies = require( attackers  *****/
  app.use(express.urlencoded({ extended: true, limit: "100kb" }));          // parse the url encoded data with the qs library
  app.use(express.json({ limit: "100kb" }));                                // transform the request body to json 
 
  app.use('/api/auth', userRoutes);
-
 
 module.exports = app;                                                       // export the application

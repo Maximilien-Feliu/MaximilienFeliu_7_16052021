@@ -1,42 +1,42 @@
-const { Sequelize, DataTypes } = require( 'sequelize' );
+'Use strict'
+
+const Sequelize = require( 'sequelize' );
 const db = require( '../config/database.js' );
 
-module.exports = sequelize.define('User', {
+module.exports = db.define('User', {
     _id: {
-        type: DataTypes.INTEGER,
+        type: Sequelize.INTEGER,
         allowNull: false,
         primaryKey: true,
         autoIncrement: true
     },
     email: { 
-        type: DataTypes.STRING, 
+        type: Sequelize.STRING(50), 
         allowNull: false
     },
     password: { 
-        type: DataTypes.STRING, 
+        type: Sequelize.STRING(255), 
         allowNull: false
     },
     username: { 
-        type: DataTypes.STRING, 
+        type: Sequelize.STRING(75), 
         allowNull: false
     },
     bio: { 
-        type: DataTypes.STRING, 
+        type: Sequelize.TEXT, 
         allowNull: true
     },
     attachment: { 
-        type: DataTypes.STRING, 
+        type: Sequelize.STRING(255), 
         allowNull: true
     },
     isAdmin: {
-        type: DataTypes.TINYINT,
+        type: Sequelize.TINYINT,
         allowNull: false,
-        default: false
+        default: 0
     }
 }, {
-    modelName: 'user',
-    tableName: 'users',
-    Sequelize,
+    Sequelize
 });
 
 

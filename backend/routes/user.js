@@ -2,14 +2,16 @@ const db = require( '../config/database.js');
 const express = require('express'); 
  
 const userCtrl = require('../controllers/user.js');
+const multer = require('../middleware/multer-config');              // import the multer configuration from the folder 'middleware'
 
 const router = express.Router();
 
-router.post('/signup', userCtrl.signup);
-router.post('/login');
-router.get('/:id');
-router.put('/:id');
-router.delete('/:id');
+router.get('/', userCtrl.getAllUsers);
+router.post('/signup', multer, userCtrl.signup);
+router.post('/login', userCtrl.login);
+router.get('/:id', userCtrl.getOneUser);
+router.put('/:id', multer, userCtrl.updateUser);
+router.delete('/:id', userCtrl.deleteUser);
 
 module.exports = router; 
 
