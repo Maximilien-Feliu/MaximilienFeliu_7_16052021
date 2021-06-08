@@ -1,8 +1,10 @@
 const bcrypt = require('bcrypt');
-const User = require( '../models/User.js');
-const db = require( '../config/database.js');
+const models = require('../models');
 const jwt = require('jsonwebtoken');    
 const fs = require('fs');    
+const index = require('../models/index');
+
+console.log(Object.keys(index));
 
 /*****  create a new user   *****/
 exports.signup = (req, res, next) => {                   
@@ -11,17 +13,18 @@ exports.signup = (req, res, next) => {
 
 /*****  hash the password then save informations *****/
     bcrypt.hash(req.body.password, 10)                                              // 10 is the salt (how many times the hashage has to be executed)
-    .then(hash => {
-        db.sync()
-        .then(() => { 
-            return User.create({
+    .then( (hash) => {
+
+        return models.User.create({
             email: bufEmail.toString('hex'),
-            password: hash,  
-            username: req.body.username,     
-            attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,                                        // get the image segment in the url,                                     
-            bio: req.body.bio,
+            password: hash, 
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,  
+            username: req.body.username,
+            department: req.body.department,   
+            bio: req.body.bio,  
+            attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,              // get the image segment in the url,                                     
             isAdmin: 0
-            })
         })
         .then(() => res.status(201).json({ message : 'User created succesfully !'}))
         .catch(error => res.status(400).json({ error }));
@@ -33,7 +36,7 @@ exports.login = (req, res, next) => {
 
     const bufEmail = Buffer.from(req.body.email);
 
-    User.findOne({ where : { email: bufEmail.toString('hex') }})                               // find the unique email 
+    models.User.findOne({ where : { email: bufEmail.toString('hex') }})                               // find the unique email 
     .then(user => {
         if (!user) {
             return res.status(401).json({ error: 'Utilisateur non trouvé !'});
@@ -52,15 +55,15 @@ exports.login = (req, res, next) => {
                 )
             });
         })
-        .catch(error => res.status(500).json({ error }))
+        .catch(error => res.status(500).json({ message: 'could not log you in' }))
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(error => res.status(500).json({ message: 'server problem' }));
 };
 
 exports.updateUser = (req, res, next) => {
 
     req.file ? (
-        User.findOne({
+        models.User.findOne({
             where: {
                 _id: req.params.id
             }
@@ -103,7 +106,7 @@ exports.updateUser = (req, res, next) => {
             }
         )
     ) : (
-        User.update(req.body, {
+        models.User.update(req.body, {
             where: {
                 _id: req.params.id
             }
@@ -125,7 +128,7 @@ exports.updateUser = (req, res, next) => {
 }
 
 exports.getAllUsers = (req, res, next) => {
-    User.findAll()
+    models.User.findAll()
     .then(users => {
         res.status(200).json(users);
     })
@@ -135,7 +138,7 @@ exports.getAllUsers = (req, res, next) => {
 }
 
 exports.getOneUser = (req, res, next) => {
-    User.findOne({
+    models.User.findOne({
         where: {
             _id: req.params.id
         }
@@ -153,12 +156,12 @@ exports.getOneUser = (req, res, next) => {
 }
 
 exports.deleteUser = (req, res, next) => {
-    User.findOne({
+    models.User.findOne({
         where: {
             _id: req.params.id
         }
-    }).then(() => {
-        User.destroy({
+    }).then((user) => {
+        user.destroy({
             where: {
                 _id: req.params.id
             }
