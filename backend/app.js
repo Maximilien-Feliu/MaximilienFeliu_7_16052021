@@ -3,10 +3,14 @@ const dotenv = require( 'dotenv');
 const cors = require( 'cors');
 const path = require( 'path');
 const { sequelize } = require('./models/index');
+const helmet = require('helmet');
+const toobusy = require('toobusy-js');
 
 const userRoutes = require( './routes/user.js');
 const postRoutes = require('./routes/post.js');
 const commentRoutes = require('./routes/comment.js');
+const postReactionRoutes = require('./routes/postReaction.js');
+const commentReactionRoutes = require('./routes/commentReaction.js');
 
 /*****  load environment variables  *****/
 dotenv.config();
@@ -18,6 +22,14 @@ console.log(process.env.HOST);
 const app = express();                                                      // create express application
 
 app.use((req, res, next) => {
+    if (toobusy()) {
+      res.send(503, "I'm busy right now, sorry.");
+    } else {
+      next();
+    }
+});
+
+app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');                                                                          // Everyone can access to the API
     res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');    // Allow to use some headers
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');                                    // Allow to use some methods
@@ -25,6 +37,7 @@ app.use((req, res, next) => {
 });
 
 app.use(cors());
+app.use(helmet());
 
 app.use('/images', express.static(path.join(__dirname, 'images')));       // respond to the request and serve the static folder 'images'
 
@@ -35,8 +48,10 @@ app.use('/images', express.static(path.join(__dirname, 'images')));       // res
 
 sequelize.sync();
 
- app.use('/api/auth', userRoutes);
- app.use('/api/post', postRoutes);
- app.use('/api/comment', commentRoutes);
+app.use('/api/auth', userRoutes);
+app.use('/api/post', postRoutes);
+app.use('/api/comment', commentRoutes);
+app.use('/api/postReaction', postReactionRoutes);
+app.use('/api/commentReaction', commentReactionRoutes);
 
 module.exports = app;                                                       // export the application

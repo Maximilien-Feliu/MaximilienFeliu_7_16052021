@@ -10,7 +10,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         email: { 
             type: DataTypes.STRING(50), 
-            allowNull: false
+            allowNull: false,
+            unique: true
         },
         password: { 
             type: DataTypes.STRING(255), 
@@ -48,6 +49,9 @@ module.exports = (sequelize, DataTypes) => {
     });
     User.associate = (models) => { 
         User.hasMany(models.Post);
+        User.hasMany(models.Comment);
+        User.hasMany(models.CommentReaction);
+        User.hasMany(models.PostReaction);
     };
     return User; 
 }

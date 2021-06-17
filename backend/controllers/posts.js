@@ -1,45 +1,44 @@
 const models = require('../models');
 const fs = require('fs');
 
-exports.createComment = (req, res, next) => {
+exports.createPost = (req, res, next) => {
 
-    return models.Comment.create({
+    return models.Post.create({
         body: req.body.body,
         attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
-        UserId: req.params.id,
-        PostId: req.body.PostId
+        UserId: req.params.id
     })
-    .then((comment) => res.status(201).json( comment ))
+    .then((post) => res.status(201).json( post ))
     .catch(error => res.status(400).json({ error }));
 }
 
-exports.updateComment = (req, res, next) => {
+exports.updatePost = (req, res, next) => {
 
     req.file ? (
-        models.Comment.findOne({
+        models.Post.findOne({
             where: {
                 _id: req.params.id
             }
         })
-        .then((comment) => {
-            const filename = comment.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
+        .then((post) => {
+            const filename = post.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
             
             fs.unlinkSync(`images/${filename}`);
             
-            let commentObject = {
+            let postObject = {
                 ...req.body, 
                 attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
             }
             
-            comment.update(commentObject, {
+            post.update(postObject, {
                 where: {
                     _id: req.params.id
                 }
             }
             )
             .then(
-                (comment) => {
-                    res.status(200).json(comment); 
+                (post) => {
+                    res.status(200).json(post); 
                 }
             ).catch(
                 error => {
@@ -57,14 +56,14 @@ exports.updateComment = (req, res, next) => {
             }
         )
     ) : (
-        models.Comment.update(req.body, {
+        models.Post.update(req.body, {
             where: {
                 _id: req.params.id
             }
         })
         .then(
             () => {
-                res.status(200).json(comment); 
+                res.status(200).json(post); 
             }
         ).catch(
             error => {
@@ -76,29 +75,47 @@ exports.updateComment = (req, res, next) => {
     )
 }
 
-exports.getAllComments = (req, res, next) => {
-    models.Comment.findAll()
-    .then(comments => {
-        res.status(200).json(comments);
+exports.getAllPosts = (req, res, next) => {
+    models.Post.findAll()
+    .then(posts => {
+        res.status(200).json(posts);
     })
     .catch(error => {
         res.status(400).json({ error: error })
     })
 }
 
-exports.deleteComment = (req, res, next) => {
-    models.Comment.findOne({
+exports.getOnePost = (req, res, next) => {
+    models.Post.findOne({
         where: {
             _id: req.params.id
         }
-    }).then((comment) => {
-        comment.destroy({
+    }).then(
+        post => {                                     
+            res.status(200).json(post);
+        }
+    ).catch(
+        error => {
+            res.status(404).json({
+                error
+            });
+        }
+    );
+}
+
+exports.deletePost = (req, res, next) => {
+    models.Post.findOne({
+        where: {
+            _id: req.params.id
+        }
+    }).then((post) => {
+        post.destroy({
             where: {
                 _id: req.params.id
             }
         }).then(
             () => {                                     
-                res.status(200).json({ message: 'Comment deleted successfully !'});
+                res.status(200).json({ message: 'Post deleted successfully !'});
             }
         ).catch(
             error => {
@@ -109,7 +126,7 @@ exports.deleteComment = (req, res, next) => {
         );
     }).catch(
         () => {
-            res.status(400).json({ message: 'Comment not found'});
+            res.status(400).json({ message: 'Post not found'});
         }
     )  
 }

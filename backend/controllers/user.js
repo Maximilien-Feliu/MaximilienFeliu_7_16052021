@@ -2,9 +2,6 @@ const bcrypt = require('bcrypt');
 const models = require('../models');
 const jwt = require('jsonwebtoken');    
 const fs = require('fs');    
-const index = require('../models/index');
-
-console.log(Object.keys(index));
 
 /*****  create a new user   *****/
 exports.signup = (req, res, next) => {                   
@@ -23,7 +20,7 @@ exports.signup = (req, res, next) => {
             username: req.body.username,
             department: req.body.department,   
             bio: req.body.bio,  
-            attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,              // get the image segment in the url,                                     
+            attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,              // get the image segment in the url,                                     
             isAdmin: 0
         })
         .then(() => res.status(201).json({ message : 'User created succesfully !'}))

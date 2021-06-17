@@ -1,7 +1,7 @@
 'Use strict'
 
 module.exports = (sequelize, DataTypes) => {
-    const Post = sequelize.define('Post', {
+    const Comment = sequelize.define('Comment', {
         _id: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -15,17 +15,22 @@ module.exports = (sequelize, DataTypes) => {
         attachment: {
             type: DataTypes.STRING(255),
             allowNull: true
-        }
+        } 
     }); 
-    Post.associate = (models) => {
-        Post.belongsTo(models.User, { 
+    Comment.associate = (models) => {
+        Comment.belongsTo(models.User, { 
             foreignKey : { 
                 allowNull: false
             },
             onDelete: 'cascade' 
         });
-        Post.hasMany(models.Comment);
-        Post.hasMany(models.PostReaction);
+        Comment.belongsTo(models.Post, { 
+            foreignKey : { 
+                allowNull: false
+            },
+            onDelete: 'cascade' 
+        });
+        Comment.hasMany(models.CommentReaction);
     };
-    return Post;
+    return Comment;
 }

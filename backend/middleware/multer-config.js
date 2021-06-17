@@ -20,4 +20,4 @@ const storage = multer.diskStorage({
     }
 });
 
-module.exports = multer({ storage }).single('image');                           // export the multer, '.single()' means that it's a unique file which is an image
+module.exports = multer({ storage }).single('attachment');                           // export the multer, '.single()' means that it's a unique file which is an image
