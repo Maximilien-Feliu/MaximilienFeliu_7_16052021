@@ -6,8 +6,8 @@ exports.createComment = (req, res, next) => {
     return models.Comment.create({
         body: req.body.body,
         attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
-        UserId: req.params.id,
-        PostId: req.body.PostId
+        UserId: req.body.userId,
+        PostId: req.params.postId
     })
     .then((comment) => res.status(201).json( comment ))
     .catch(error => res.status(400).json({ error }));

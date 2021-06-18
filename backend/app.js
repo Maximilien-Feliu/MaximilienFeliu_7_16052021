@@ -3,8 +3,11 @@ const dotenv = require( 'dotenv');
 const cors = require( 'cors');
 const path = require( 'path');
 const { sequelize } = require('./models/index');
+
 const helmet = require('helmet');
 const toobusy = require('toobusy-js');
+const rateLimiter = require('./middleware/rateLimiter');                // middleware to handle the number of requests by Ip
+const hpp = require('hpp');                                             // protect against HTTP Parameter Pollution attacks
 
 const userRoutes = require( './routes/user.js');
 const postRoutes = require('./routes/post.js');
@@ -38,6 +41,8 @@ app.use((req, res, next) => {
 
 app.use(cors());
 app.use(helmet());
+app.use(rateLimiter);
+app.use(hpp());
 
 app.use('/images', express.static(path.join(__dirname, 'images')));       // respond to the request and serve the static folder 'images'
 
@@ -50,8 +55,8 @@ sequelize.sync();
 
 app.use('/api/auth', userRoutes);
 app.use('/api/post', postRoutes);
-app.use('/api/comment', commentRoutes);
-app.use('/api/postReaction', postReactionRoutes);
-app.use('/api/commentReaction', commentReactionRoutes);
+app.use('/api/comment/:postId', commentRoutes);
+app.use('/api/postReaction/:postId', postReactionRoutes);
+app.use('/api/commentReaction/:commentId', commentReactionRoutes);
 
 module.exports = app;                                                       // export the application
