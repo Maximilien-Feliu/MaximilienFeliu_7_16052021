@@ -23,6 +23,7 @@ exports.updateComment = (req, res) => {
     const token = req.headers.authorization.split(' ')[1];                  // get the token in the authotization header (2nd in the array)
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
+    const admin = decodedToken.isAdmin;
 
     req.file ? (
         models.Comment.findOne({
@@ -31,7 +32,7 @@ exports.updateComment = (req, res) => {
             }
         })
         .then((comment) => {
-            if (comment.UserId === userId) {
+            if (comment.UserId === userId || admin === 1) {
                 const filename = comment.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
             
                 fs.unlinkSync(`images/${filename}`);
@@ -75,7 +76,7 @@ exports.updateComment = (req, res) => {
                 _id: req.params.id
             }
         }).then((comment) => {
-            if (comment.UserId === userId) {
+            if (comment.UserId === userId || admin === 1) {
                 comment.update(req.body, {
                     where: {
                         _id: req.params.id
@@ -132,13 +133,14 @@ exports.deleteComment = (req, res) => {
     const token = req.headers.authorization.split(' ')[1];                  // get the token in the authotization header (2nd in the array)
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
+    const admin = decodedToken.isAdmin;
 
     models.Comment.findOne({
         where: {
             _id: req.params.id
         }
     }).then((comment) => {
-        if (comment.UserId === userId) {
+        if (comment.UserId === userId || admin === 1) {
             comment.destroy({
                 where: {
                     _id: req.params.id

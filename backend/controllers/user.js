@@ -45,13 +45,16 @@ exports.login = (req, res) => {
             res.status(200).json({                                                  // return a userId and a token if everything is ok
                 userId: user._id,
                 token: jwt.sign(                                                    // give the token to connect only one time and return the token for authentifying each requests
-                    { userId: user._id },
+                    { 
+                        userId: user._id,
+                        isAdmin: user.isAdmin
+                    },
                     process.env.SECRET_TOKEN,
                     { expiresIn: '24h' }
                 )
             });
         })
-        .catch(() => res.status(500).json({ message: 'could not log you in' }))
+        .catch(() => res.status(500).json({ message: 'cannot log you in' }))
     })
     .catch(() => res.status(500).json({ message: 'server problem' }));
 };
@@ -61,6 +64,7 @@ exports.updateUser = (req, res) => {
     const token = req.headers.authorization.split(' ')[1];                  // get the token in the authotization header (2nd in the array)
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
+    const admin = decodedToken.isAdmin;
 
     req.file ? (
         models.User.findOne({
@@ -69,7 +73,7 @@ exports.updateUser = (req, res) => {
             }
         })
         .then((user) => {
-            if (user._id === userId) {
+            if (user._id === userId || admin === 1) {
                 const filename = user.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
             
                 fs.unlinkSync(`images/${filename}`);
@@ -116,7 +120,7 @@ exports.updateUser = (req, res) => {
             }
         })
         .then((user) => {
-            if (user._id === userId) {
+            if (user._id === userId || admin === 1) {
                 user.update(req.body, {
                     where: {
                         _id: req.params.id
@@ -170,12 +174,17 @@ exports.getOneUser = (req, res) => {
 }
 
 exports.deleteUser = (req, res) => {
+    const token = req.headers.authorization.split(' ')[1];                  // get the token in the authotization header (2nd in the array)
+    const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
+    const userId = decodedToken.userId;                                     // get the userId when it's decoded
+    const admin = decodedToken.isAdmin;
+
     models.User.findOne({
         where: {
             _id: req.params.id
         }
     }).then((user) => {
-        if (user._id === userId) {
+        if (user._id === userId || admin === 1) {
             user.destroy({
                 where: {
                     _id: req.params.id

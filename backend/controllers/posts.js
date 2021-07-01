@@ -23,6 +23,7 @@ exports.updatePost = (req, res) => {
     const token = req.headers.authorization.split(' ')[1];                  // get the token in the authotization header (2nd in the array)
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
+    const admin = decodedToken.isAdmin;
 
     req.file ? (
         models.Post.findOne({
@@ -31,7 +32,7 @@ exports.updatePost = (req, res) => {
             }
         })
         .then((post) => {
-            if (post.UserId === userId) {
+            if (post.UserId === userId || admin === 1) {
                 const filename = post.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
                 
                 fs.unlinkSync(`images/${filename}`);
@@ -75,7 +76,7 @@ exports.updatePost = (req, res) => {
                 _id: req.params.id
             }
         }).then((post) => {
-            if (post.UserId === userId) {
+            if (post.UserId === userId || admin === 1) {
                 post.update(req.body, {
                     where: {
                         _id: req.params.id
@@ -132,13 +133,14 @@ exports.deletePost = (req, res) => {
     const token = req.headers.authorization.split(' ')[1];                  // get the token in the authotization header (2nd in the array)
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
+    const admin = decodedToken.isAdmin;
     
     models.Post.findOne({
         where: {
             _id: req.params.id
         }
     }).then((post) => {
-        if (post.UserId === userId) { 
+        if (post.UserId === userId || admin === 1) { 
             post.destroy({
                 where: {
                     _id: req.params.id
