@@ -4,14 +4,13 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs');    
 
 /*****  create a new user   *****/
-exports.signup = (req, res, next) => {                   
+exports.signup = (req, res) => {                   
     
     const bufEmail = Buffer.from(req.body.email);
 
 /*****  hash the password then save informations *****/
     bcrypt.hash(req.body.password, 10)                                              // 10 is the salt (how many times the hashage has to be executed)
-    .then( (hash) => {
-
+    .then((hash) => {
         return models.User.create({
             email: bufEmail.toString('hex'),
             password: hash, 
@@ -29,19 +28,19 @@ exports.signup = (req, res, next) => {
     .catch(error => res.status(500).json({ error }));
 };
 
-exports.login = (req, res, next) => {
+exports.login = (req, res) => {
 
     const bufEmail = Buffer.from(req.body.email);
 
     models.User.findOne({ where : { email: bufEmail.toString('hex') }})                               // find the unique email 
     .then(user => {
         if (!user) {
-            return res.status(401).json({ error: 'Utilisateur non trouvé !'});
+            return res.status(401).json({ error: 'user not found !'});
         }
         bcrypt.compare(req.body.password, user.password)                            // compare passwords between entered hash and data base hash
         .then(valid => {
             if (!valid) {
-                return res.status(401).json({ error: 'Mot de passe inccorect !'});
+                return res.status(401).json({ error: 'incorrect password !'});
             }
             res.status(200).json({                                                  // return a userId and a token if everything is ok
                 userId: user._id,
@@ -52,12 +51,16 @@ exports.login = (req, res, next) => {
                 )
             });
         })
-        .catch(error => res.status(500).json({ message: 'could not log you in' }))
+        .catch(() => res.status(500).json({ message: 'could not log you in' }))
     })
-    .catch(error => res.status(500).json({ message: 'server problem' }));
+    .catch(() => res.status(500).json({ message: 'server problem' }));
 };
 
-exports.updateUser = (req, res, next) => {
+exports.updateUser = (req, res) => {
+
+    const token = req.headers.authorization.split(' ')[1];                  // get the token in the authotization header (2nd in the array)
+    const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
+    const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
     req.file ? (
         models.User.findOne({
@@ -66,34 +69,38 @@ exports.updateUser = (req, res, next) => {
             }
         })
         .then((user) => {
-            const filename = user.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
+            if (user._id === userId) {
+                const filename = user.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
             
-            fs.unlinkSync(`images/${filename}`);
-            
-            let userObject = {
-                ...req.body, 
-                attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+                fs.unlinkSync(`images/${filename}`);
+                
+                let userObject = {
+                    ...req.body, 
+                    attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+                }
+                
+                user.update(userObject, {
+                    where: {
+                        _id: req.params.id
+                    }
+                }
+                )
+                .then(
+                    () => {
+                        res.status(200).json({
+                            message: 'User updated successfully !'
+                        }); 
+                    }
+                ).catch(
+                    error => {
+                        res.status(400).json({
+                            error
+                        });
+                    }
+                )
+            } else {
+                res.status(400).json({ message: "not allowed to update"})
             }
-            
-            user.update(userObject, {
-                where: {
-                    _id: req.params.id
-                }
-            }
-            )
-            .then(
-                () => {
-                    res.status(200).json({
-                        message: 'User updated successfully !'
-                    }); 
-                }
-            ).catch(
-                error => {
-                    res.status(400).json({
-                        error
-                    });
-                }
-            )
         })
         .catch(
             error => {
@@ -103,28 +110,38 @@ exports.updateUser = (req, res, next) => {
             }
         )
     ) : (
-        models.User.update(req.body, {
+        models.User.findOne({
             where: {
                 _id: req.params.id
             }
         })
-        .then(
-            () => {
-                res.status(200).json({
-                    message: 'User updated successfully !'
-                }); 
-            }
-        ).catch(
-            error => {
-                res.status(400).json({
-                    error
-                });
-            }
-        )   
+        .then((user) => {
+            if (user._id === userId) {
+                user.update(req.body, {
+                    where: {
+                        _id: req.params.id
+                    }
+                })
+                .then(
+                    res.status(200).json({
+                        message: 'User updated successfully !'
+                    })
+                )
+                .catch(
+                    error => {
+                        res.status(400).json({
+                            error
+                        });
+                    }
+                ) 
+            } else {
+                res.status(400).json({ message: "not allowed to update"})
+            }      
+        }) 
     )
 }
 
-exports.getAllUsers = (req, res, next) => {
+exports.getAllUsers = (req, res) => {
     models.User.findAll()
     .then(users => {
         res.status(200).json(users);
@@ -134,7 +151,7 @@ exports.getAllUsers = (req, res, next) => {
     })
 }
 
-exports.getOneUser = (req, res, next) => {
+exports.getOneUser = (req, res) => {
     models.User.findOne({
         where: {
             _id: req.params.id
@@ -152,26 +169,30 @@ exports.getOneUser = (req, res, next) => {
     );
 }
 
-exports.deleteUser = (req, res, next) => {
+exports.deleteUser = (req, res) => {
     models.User.findOne({
         where: {
             _id: req.params.id
         }
     }).then((user) => {
-        user.destroy({
-            where: {
-                _id: req.params.id
-            }
-        }).then(
-            () => {                                     
-                res.status(200).json({ message: 'User deleted successfully !'});
-            }
-        ).catch(
-            error => {
-                res.status(404).json({
-                    error
-                });
-            }
-        );
+        if (user._id === userId) {
+            user.destroy({
+                where: {
+                    _id: req.params.id
+                }
+            }).then(
+                () => {                                     
+                    res.status(200).json({ message: 'User deleted successfully !'});
+                }
+            ).catch(
+                error => {
+                    res.status(404).json({
+                        error
+                    });
+                }
+            );
+        } else {
+            res.status(400).json({ message: "not allowed to update"})
+        }  
     })  
 }

@@ -5,9 +5,9 @@ const auth = require('../middleware/auth');
 
 const router = express.Router();
 
-router.get('/', reactionCtrl.getAllReactions);
-router.post('/', auth, reactionCtrl.addReaction);
-router.put('/:id', auth, reactionCtrl.updateReaction);
-router.delete('/:id', auth, reactionCtrl.deleteReaction);
+router.get('/:id/commentReaction', reactionCtrl.getAllReactions);
+router.post('/:id/commentReaction', auth, reactionCtrl.addReaction);
+router.put('/:commentId/commentReaction/:id', auth, reactionCtrl.updateReaction);
+router.delete('/:commentId/commentReaction/:id', auth, reactionCtrl.deleteReaction);
 
 module.exports = router; 

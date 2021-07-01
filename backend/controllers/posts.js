@@ -1,18 +1,28 @@
 const models = require('../models');
 const fs = require('fs');
+const jwt = require('jsonwebtoken');           // import the token package
 
-exports.createPost = (req, res, next) => {
+
+exports.createPost = (req, res) => {
+    
+    const token = req.headers.authorization.split(' ')[1];                  // get the token in the authotization header (2nd in the array)
+    const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
+    const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
     return models.Post.create({
         body: req.body.body,
         attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
-        UserId: req.body.userId
+        UserId: userId
     })
-    .then((post) => res.status(201).json( post ))
+    .then(() => res.status(201).json({ message : "post added successfully !"}))
     .catch(error => res.status(400).json({ error }));
 }
 
-exports.updatePost = (req, res, next) => {
+exports.updatePost = (req, res) => {
+
+    const token = req.headers.authorization.split(' ')[1];                  // get the token in the authotization header (2nd in the array)
+    const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
+    const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
     req.file ? (
         models.Post.findOne({
@@ -21,32 +31,36 @@ exports.updatePost = (req, res, next) => {
             }
         })
         .then((post) => {
-            const filename = post.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
-            
-            fs.unlinkSync(`images/${filename}`);
-            
-            let postObject = {
-                ...req.body, 
-                attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+            if (post.UserId === userId) {
+                const filename = post.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
+                
+                fs.unlinkSync(`images/${filename}`);
+                
+                let postObject = {
+                    ...req.body, 
+                    attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+                }
+                
+                post.update(postObject, {
+                    where: {
+                        _id: req.params.id
+                    }
+                }
+                )
+                .then(
+                    () => {
+                        res.status(200).json({ message : 'post updated successfully !'}); 
+                    }
+                ).catch(
+                    error => {
+                        res.status(400).json({
+                            error
+                        });
+                    }
+                )
+            } else {
+                res.status(400).json({ message: "not allowed to update"})
             }
-            
-            post.update(postObject, {
-                where: {
-                    _id: req.params.id
-                }
-            }
-            )
-            .then(
-                (post) => {
-                    res.status(200).json(post); 
-                }
-            ).catch(
-                error => {
-                    res.status(400).json({
-                        error
-                    });
-                }
-            )
         })
         .catch(
             error => {
@@ -56,26 +70,36 @@ exports.updatePost = (req, res, next) => {
             }
         )
     ) : (
-        models.Post.update(req.body, {
+        models.Post.findOne({
             where: {
                 _id: req.params.id
             }
-        })
-        .then(
-            () => {
-                res.status(200).json(post); 
+        }).then((post) => {
+            if (post.UserId === userId) {
+                post.update(req.body, {
+                    where: {
+                        _id: req.params.id
+                    }
+                })
+                .then(
+                    () => {
+                        res.status(200).json({ message : 'post updated successfully !'}); 
+                    } 
+                ).catch(
+                    error => {
+                        res.status(400).json({
+                            error
+                        });
+                    }
+                ) 
+            } else {
+                res.status(400).json({ message: "not allowed to update"})
             }
-        ).catch(
-            error => {
-                res.status(400).json({
-                    error
-                });
-            }
-        )   
+        })  
     )
 }
 
-exports.getAllPosts = (req, res, next) => {
+exports.getAllPosts = (req, res) => {
     models.Post.findAll()
     .then(posts => {
         res.status(200).json(posts);
@@ -85,7 +109,7 @@ exports.getAllPosts = (req, res, next) => {
     })
 }
 
-exports.getOnePost = (req, res, next) => {
+exports.getOnePost = (req, res) => {
     models.Post.findOne({
         where: {
             _id: req.params.id
@@ -103,27 +127,36 @@ exports.getOnePost = (req, res, next) => {
     );
 }
 
-exports.deletePost = (req, res, next) => {
+exports.deletePost = (req, res) => {
+
+    const token = req.headers.authorization.split(' ')[1];                  // get the token in the authotization header (2nd in the array)
+    const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
+    const userId = decodedToken.userId;                                     // get the userId when it's decoded
+    
     models.Post.findOne({
         where: {
             _id: req.params.id
         }
     }).then((post) => {
-        post.destroy({
-            where: {
-                _id: req.params.id
-            }
-        }).then(
-            () => {                                     
-                res.status(200).json({ message: 'Post deleted successfully !'});
-            }
-        ).catch(
-            error => {
-                res.status(404).json({
-                    error
-                });
-            }
-        );
+        if (post.UserId === userId) { 
+            post.destroy({
+                where: {
+                    _id: req.params.id
+                }
+            }).then(
+                () => {                                     
+                    res.status(200).json({ message: 'Post deleted successfully !'});
+                }
+            ).catch(
+                error => {
+                    res.status(404).json({
+                        error
+                    });
+                }
+            )
+        } else {
+            res.status(400).json({ message: "not allowed to delete"});
+        }
     }).catch(
         () => {
             res.status(400).json({ message: 'Post not found'});

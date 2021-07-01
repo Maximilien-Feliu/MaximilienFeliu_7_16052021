@@ -7,9 +7,10 @@ const regExp = require('../middleware/regExp');                                 
 
 const router = express.Router();
 
-router.get('/', auth, commentCtrl.getAllComments);
-router.post('/', auth, regExp.postOrComment, multer, commentCtrl.createComment);
-router.put('/:id', auth, regExp.postOrComment, multer, commentCtrl.updateComment);
-router.delete('/:id', auth, commentCtrl.deleteComment);
+router.get('/:id/comment', auth, commentCtrl.getAllComments);
+router.post('/:id/comment', auth, regExp.postOrComment, multer, commentCtrl.createComment);
+router.put('/:postId/comment/:id', auth, regExp.postOrComment, multer, commentCtrl.updateComment);
+router.get('/:postId/comment/:id', auth, commentCtrl.getOneComment);
+router.delete('/:postId/comment/:id', auth, commentCtrl.deleteComment);
 
 module.exports = router;

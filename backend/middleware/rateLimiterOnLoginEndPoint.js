@@ -6,6 +6,7 @@ const mysql = require('mysql2');
 const { RateLimiterMySQL } = require('rate-limiter-flexible');                      // request limiter 
 const bcrypt = require('bcrypt');                                                   // package to create hashes for passwords
 const dotenv = require('dotenv');
+const models = require('../models');
 
 dotenv.config();
 
@@ -30,26 +31,26 @@ const opts = {
   // if second parameter is not a function or not provided, it may throw unhandled error on creation db or table
 const rateLimiter = new RateLimiterMySQL(opts);
 
-module.exports = async (req, res, next) => {
+module.exports = (req, res, next) => {
  
     const bufEmail = Buffer.from(req.body.email);                                   // get the email sent by the user then buff it
     const userEmail = bufEmail.toString('hex');                                     // get the email sent by the user
     const userIp = req.ip;                                                          // get the ip from the request
-    const rlUser = await rateLimiter.get(userEmail);                                // get the existing email in the database set on the rate limiter key
-    const rlIp = await rateLimiter.get(userIp);                                     // get the user Ip set in the rate limiter key
+    const rlUser = rateLimiter.get(userEmail);                                // get the existing email in the database set on the rate limiter key
+    const rlIp = rateLimiter.get(userIp);                                     // get the user Ip set in the rate limiter key
  
     models.User.findOne({ where : { email: userEmail }})                                              // find the unique email 
     .then(user => {
         if (!user) {
             rateLimiter.consume(req.ip)                                             // one point added for every email searching failure, user ip added to the limiter key
             .then(() => {
-                next();
+                next(); 
             }).catch(_ => {
                 res.status(429).json({ message: 'too many tries, please try again later' });
-            })
+            })  
             return false;
 
-        }else if (rlIp && rlIp.consumedPoints > maxConsecutiveFailsByUsername) {    
+        }else if (rlIp && rlIp.consumedPoints > maxConsecutiveFailsByUsername) {     
 
             return res.status(429).json({ message: 'too many tries, please try again later' });
 

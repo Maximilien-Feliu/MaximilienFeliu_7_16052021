@@ -55,8 +55,8 @@ sequelize.sync();
 
 app.use('/api/auth', userRoutes);
 app.use('/api/post', postRoutes);
-app.use('/api/comment/:postId', commentRoutes);
-app.use('/api/postReaction/:postId', postReactionRoutes);
-app.use('/api/commentReaction/:commentId', commentReactionRoutes);
+app.use('/api/post', commentRoutes);
+app.use('/api/post', postReactionRoutes);
+app.use('/api/post/:postId/comment', commentReactionRoutes);
 
 module.exports = app;                                                       // export the application

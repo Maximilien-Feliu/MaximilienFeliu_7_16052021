@@ -10,13 +10,13 @@ module.exports = (req, res, next) => {
         const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
         const userId = decodedToken.userId;                                     // get the userId when it's decoded
         if (req.body.userId && req.body.userId !== userId) {                    // verify a potential existing userId
-            throw 'Identifiant d\'utilisateur non valable !';
+            throw 'invalid user ID !';
         } else {
             next();
         }
     }catch (error) {
         res.status(401).json({
-            error: error | 'requête invalide !'
+            error: error | 'invalid request !'
         }) 
     }
 };

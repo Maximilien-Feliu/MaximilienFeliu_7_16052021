@@ -5,15 +5,15 @@ const multer = require('../middleware/multer-config');              // import th
 const auth = require('../middleware/auth.js');
 const limiterLogin = require('../middleware/rateLimiterOnLoginEndPoint');
 const limiterSignup = require('../middleware/rateLimiterOnSignupEndPoint');
-const regExp = require('../middleware/regExp');                                 // import regExp
+const regExp = require('../middleware/regExp.js');                                 // import regExp
 
 const router = express.Router();
 
 router.get('/', auth, userCtrl.getAllUsers);
-router.post('/signup', limiterSignup, regExp.user, multer, userCtrl.signup);
+router.post('/signup', limiterSignup, regExp.user, multer, userCtrl.signup); 
 router.post('/login', limiterLogin, regExp.user, multer, userCtrl.login);
 router.get('/:id', auth, userCtrl.getOneUser);
-router.put('/:id', auth, regExp.user, multer, userCtrl.updateUser);  
+router.put('/:id', auth, regExp.updateUser, multer, userCtrl.updateUser);  
 router.delete('/:id', auth, userCtrl.deleteUser);
 
 module.exports = router; 
