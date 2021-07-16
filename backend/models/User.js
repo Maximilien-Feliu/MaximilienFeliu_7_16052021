@@ -25,16 +25,12 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(75),
             allowNull: false
         },
-        username: { 
-            type: DataTypes.STRING(75), 
-            allowNull: true
-        },
         department: {
             type: DataTypes.STRING(255),
             allowNull: false
         },
         bio: { 
-            type: DataTypes.TEXT, 
+            type: DataTypes.TEXT,  
             allowNull: true
         },
         attachment: { 

@@ -1,38 +1,42 @@
 <template>
-
   <div class="home">
-    <div id="header">
-      <img class="logo" alt="Groupomania logo" src="../assets/icon-left-font-monochrome-white-modif.png">
-      <div id="login">
-        <form action="#" id="login_form">
-          <label for="login_email">Votre Email : </label>
-          <input type="email" id="login_email" maxlength="255" required>
-          <div id="login_error_email"></div>
+    <LoginHeader />
 
-          <label for="login_password">Votre Mot de passe :</label>
-          <input type="password" id="login_password" maxlength="255" required>
-          <div id="login_error_password"></div>
+    <div id="body">
 
-          <router-link to="/login">Se connecter</router-link>
+      <h1>Bienvenue sur le réseau social interne de Groupomania !</h1>
 
-        </form>
-      </div>
+      <section>
+        <article id="hello">
+
+          <h2>Quel est le but de ce réseau social ?</h2>
+
+          <p>
+            Ce réseau social a pour but d'améliorer la communication entre collègues et de permettre à chacun de se connaître dans un cadre plus informel.
+            <br/>Vous pouvez poster, commenter, liker et être à jour des dernières nouvelles de vos collègues de travail.
+            <br/>Respect et bienveillance sont évidemment la règle d'or de ce réseau social. 
+          </p>
+        </article>
+
+        <Signup />
+      </section>
     </div>
-    <Bienvenue />
-    <Footer />   
+
+    <Footer />
   </div>
-  
 </template>
 
 <script>
 // @ is an alias to /src
-import Bienvenue from '@/components/Bienvenue.vue'
+import LoginHeader from '@/components/LoginHeader.vue'
+import Signup from '@/components/Signup.vue'
 import Footer from '@/components/Footer.vue'
 
 export default {
   name: 'Home',
   components: {
-    Bienvenue,
+    LoginHeader,
+    Signup,
     Footer
   }
 }
@@ -46,38 +50,48 @@ export default {
   flex-direction: column;
   align-items: center;
 }
-#header {
-  display: flex;
-  justify-content: space-between;
+#body {
+  height: 100%;
   background-color: rgba(8, 8, 58, 0.699);
-  height: 70px;
   width: 97%;
+  margin-top: 2em;
+  color: white;
 }
-.logo{
-  width: 23%;
-  height: 60px;
-  padding: 0px;
-  margin-left: 15px;
-  margin-top: 5px;
+h1{
+  color: white;
+  text-align: center;
+  margin-bottom: 1em;
 }
-#login{
+h2 {
+  text-decoration: underline;
+  margin-left: 2em;
+  margin-top: 1em;
+}
+section {
+  display: flex;
+  justify-content: space-around;
+}
+#hello {
   width: 50%;
-  margin-right: 15px;
-  font-weight: bold;
-  color: white;
-  display: flex;
-  align-items: center;
+  position: relative;
+  border-radius: 30px;
 }
-#login_form {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
+#hello:after {
+  content: '';
+  position: absolute;
+  width: 73%;
+  height: 70%;
+  border-top-right-radius: 30px;
+  border-top-left-radius: 20px;
+  bottom: 30%;
+  left: 27%;
+  right: -20;
+  border-top: 10px solid rgb(255, 57, 57);
+  border-right: 10px solid rgb(255, 57, 57);
 }
-a {
-  color: white;
+#hello p {
+  font-size: 20px;
+  line-height: 2em;
 }
-a:hover {
-  color: rgb(255, 57, 57);
-  transition: .3s;
-}
+
 </style>

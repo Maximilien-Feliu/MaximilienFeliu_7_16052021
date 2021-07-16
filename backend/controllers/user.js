@@ -16,7 +16,6 @@ exports.signup = (req, res) => {
             password: hash, 
             firstName: req.body.firstName,
             lastName: req.body.lastName,  
-            username: req.body.username,
             department: req.body.department,   
             bio: req.body.bio,  
             attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,              // get the image segment in the url,                                     
