@@ -57,7 +57,7 @@ import { reactive, computed } from 'vue'
 
 export default {
     name: 'Signup',
-    setup () {
+    setup () { 
         const state = reactive({
             email: '',
             password: {
@@ -118,11 +118,11 @@ export default {
             this.v$.$validate();
             if (!this.v$.$error) {
                 this.$store.dispatch('createAccount', {
-                    email: this.email,
-                    password: this.password,
-                    firstName: this.firstName,
-                    lastName: this.lastName,
-                    department: this.department,
+                    email: this.state.email,
+                    password: this.state.password.password,
+                    firstName: this.state.firstName,
+                    lastName: this.state.lastName,
+                    department: this.state.department,
                 })
             } else {
                 alert('veuillez renseigner les champs correctement.')

@@ -54,8 +54,8 @@ app.use('/images', express.static(path.join(__dirname, 'images')));       // res
 sequelize.sync();
 
 app.use('/api/auth', userRoutes);
-app.use('/api/post', postRoutes);
-app.use('/api/post', commentRoutes);
+app.use('/api/post', postRoutes); 
+app.use('/api/post', commentRoutes); 
 app.use('/api/post', postReactionRoutes);
 app.use('/api/post/:postId/comment', commentReactionRoutes);
 
