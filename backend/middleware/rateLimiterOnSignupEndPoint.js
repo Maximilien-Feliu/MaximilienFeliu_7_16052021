@@ -32,6 +32,6 @@ module.exports = (req, res, next) => {
         next();
     })
     .catch(() => {
-        res.status(429).json('Too Many accounts created');
+        res.status(429).json({message: 'Too Many accounts created'});
     });
 }

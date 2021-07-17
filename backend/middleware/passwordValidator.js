@@ -14,7 +14,7 @@ password
 module.exports = (req, res, next) => {
     if (!password.validate(req.body.password)) {
         return res.status(401).json({ message: 'incorrect password format' }); 
-    }else {
+    }else { 
         next();
     }
 }

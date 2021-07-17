@@ -34,12 +34,12 @@ exports.login = (req, res) => {
     models.User.findOne({ where : { email: bufEmail.toString('hex') }})                               // find the unique email 
     .then(user => {
         if (!user) {
-            return res.status(401).json({ error: 'user not found !'});
+            return res.status(400).json({ error: 'user not found !'});
         }
         bcrypt.compare(req.body.password, user.password)                            // compare passwords between entered hash and data base hash
         .then(valid => {
             if (!valid) {
-                return res.status(401).json({ error: 'incorrect password !'});
+                return res.status(400).json({ error: 'incorrect password !'});
             }
             res.status(200).json({                                                  // return a userId and a token if everything is ok
                 userId: user._id,

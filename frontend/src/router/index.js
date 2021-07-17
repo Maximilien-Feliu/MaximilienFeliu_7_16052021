@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
-import Signup from '../views/Signup.vue'
+import CompleteProfile from '../views/CompleteProfile.vue'
 import NotFound from '../views/NotFound.vue'
 
 const routes = [
@@ -14,11 +14,11 @@ const routes = [
     }
   }, 
   {
-    path: '/signup',
-    name: 'Signup',
-    component: Signup,
+    path: '/completeProfile',
+    name: 'CompleteProfile',
+    component: CompleteProfile,
     meta: {
-      title: 'Groupomania - Inscription'
+      title: 'Groupomania - Profile'
     }
   },
   {
