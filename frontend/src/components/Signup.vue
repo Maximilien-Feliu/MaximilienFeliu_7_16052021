@@ -45,7 +45,7 @@
           <div class="input_error" v-if="status == 'error_regex'" >Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !</div>
           <div class="button_info">
             <button @click="createAccount" type="button" :class="{'button--disabled' : !validatedFields}" >
-              <span class="bold" v-if="status == 'loading'">Connexion...</span>
+              <span class="bold" v-if="status == 'loading'">Inscription...</span>
               <span class="bold" v-else>S'inscrire</span>
             </button> 
             <p class="inputs_info">* tous les éléments sont obligatoires</p>
@@ -130,8 +130,7 @@ export default {
                     password: this.state.password.password,
                     firstName: this.state.firstName,
                     lastName: this.state.lastName,
-                    department: this.state.department,
-                    
+                    department: this.state.department
                 }).then(() => {
                   this.$store.dispatch('login', {
                     email: this.state.email,
@@ -140,12 +139,22 @@ export default {
                   }).then(() => {
                     this.$router.push('/completeProfile')
 
-                  }).catch((error) => {
+                  }).catch(() => {
                     this.$router.push('/:pathMatch(.*)');
-
                   })
-                }).catch((error) => {
-                  console.log(error);
+                }).catch(() => {
+                  if (this.status == 'error_email') {
+                    alert('Cet email existe déjà.');
+
+                  } else if (this.status == 'error_too_many') {
+                    alert('Désolé, vous avez créé trop de comptes. Veuillez réessayer dans 24h.')
+                    
+                  } else if (this.status == 'error_regex') {
+                    alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !')
+
+                  } else {
+                    this.$router.push('/:pathMatch(.*)');
+                  }
                 })
             } else {
                 alert('veuillez renseigner les champs correctement.')

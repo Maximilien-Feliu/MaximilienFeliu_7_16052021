@@ -15,8 +15,8 @@
             <div class="input_error" v-if="v$.password.$error" id="login_error_password">{{ v$.password.$errors[0].$message }}</div>
           </div>
 
-          <a @click="login" :class="{'button--disabled' : !validatedFields}" >
-            <span class="bold" v-if="status == 'loading'">Inscription ...</span>
+          <a @click="login" >
+            <span class="bold" v-if="status == 'loading'">Connection ...</span>
             <span class="bold" v-else>Se connecter</span>
           </a>
 
@@ -56,37 +56,37 @@ export default {
         }
     },
     computed: {
-        validatedFields () {
-            if (this.state.email != "" && this.state.password != "") {
-                return true;
-            } else {
-                return false;
-            }
-        },
         ...mapState(['status'])
     }, 
     methods: {
-        login () {
-            this.v$.$validate();
-            if (!this.v$.$error) {
-                this.$store.dispatch('login', {
-                    email: this.state.email,
-                    password: this.state.password
-                }).then((response) => {
-                  console.log(response);
-                }).catch(() => {
-                  if (status == 'user_not_found') {
-                    this.$router.push('/login');
-                  } else if (status == 'error_login_regex') {
-                    alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !')
-                  } else {
-                    this.$router.push('/:pathMatch(.*)')
-                  }
-                })
+      login () {
+        this.v$.$validate();
+        if (!this.v$.$error) {
+          this.$store.dispatch('login', {
+              email: this.state.email,
+              password: this.state.password
+          }).then((response) => {
+            console.log(response);
+
+          }).catch(() => {
+            if (this.status == 'user_not_found') {
+              this.$router.push('/login');
+              return false;
+
+            } else if (this.status == 'error_login_regex') {
+              alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !');
+
+            } else if (this.status == 'error_blocked') {
+              alert('Le nombre d\'essais autorisés a été dépassé, veuillez réessayer ultérieurement.')
+
             } else {
-                alert('veuillez renseigner les champs correctement.')
+              this.$router.push('/:pathMatch(.*)');
             }
+          })
+        } else {
+          alert('veuillez renseigner les champs correctement.')
         }
+      }
     }
 }
 </script>
@@ -128,10 +128,6 @@ export default {
   left: 0;
   width: 350px;
   color: rgb(255, 57, 57);
-}
-.button--disabled {
-  pointer-events: none;
-  color: rgba(255, 255, 255, 0.651);
 }
 a {
   color: rgb(255, 255, 255);

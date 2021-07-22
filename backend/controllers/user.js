@@ -12,7 +12,7 @@ exports.signup = (req, res) => {
     bcrypt.hash(req.body.password, 10)                                              // 10 is the salt (how many times the hashage has to be executed)
     .then((hash) => {
         return models.User.create({
-            email: bufEmail.toString('hex'),
+            email: bufEmail.toString('hex'),  
             password: hash, 
             firstName: req.body.firstName,
             lastName: req.body.lastName,  
@@ -34,7 +34,7 @@ exports.login = (req, res) => {
     models.User.findOne({ where : { email: bufEmail.toString('hex') }})                               // find the unique email 
     .then(user => {
         if (!user) {
-            return res.status(400).json({ error: 'user not found !'});
+            return res.status(400).json({ error: 'user not found !'});  
         }
         bcrypt.compare(req.body.password, user.password)                            // compare passwords between entered hash and data base hash
         .then(valid => {
@@ -48,7 +48,7 @@ exports.login = (req, res) => {
                         userId: user._id,
                         isAdmin: user.isAdmin
                     },
-                    process.env.SECRET_TOKEN,
+                    process.env.SECRET_TOKEN, 
                     { expiresIn: '24h' }
                 )
             });
@@ -72,7 +72,7 @@ exports.updateUser = (req, res) => {
             }
         })
         .then((user) => {
-            if (user._id === userId || admin === 1) {
+            if (user._id === userId || admin === 1) {   
                 const filename = user.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
             
                 fs.unlinkSync(`images/${filename}`);

@@ -25,8 +25,8 @@ export default createStore({
   },
   actions: {
     createAccount: ({commit}, userInfos) => {
+      commit('setStatus', 'loading');
       return new Promise((resolve, reject) => {
-        commit;
         instance.post('/auth/signup', userInfos) 
         .then((response) => {
           commit('setStatus', 'created');
@@ -36,16 +36,19 @@ export default createStore({
           if (error.response.status === 400) {
             commit('setStatus', 'error_email');
             reject(error);
+
           } else if (error.response.status === 401) {
             commit('setStatus', 'error_regex');
             reject(error);
+
           } else if (error.response.status === 429) {
             commit('setStatus', 'error_too_many');
             reject(error);
+
           } else {
             commit('setStatus', 'error_create');
             reject(error);
-          }
+          } 
         });
       })
     },
@@ -62,12 +65,15 @@ export default createStore({
           if (error.response.status === 400) {
             commit('setStatus', 'user_not_found');
             reject(error);
+
           } else if (error.response.status === 401) {
             commit('setStatus', 'error_login_regex');
             reject(error);
+
           } else if (error.response.status === 429) {
             commit('setStatus', 'error_blocked');
             reject(error);
+            
           } else {
             commit('setStatus', 'error_login');
             reject(error);
