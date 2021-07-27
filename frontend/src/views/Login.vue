@@ -1,17 +1,15 @@
 <template>
   <div class="login_page">
-    <header>
-      <router-link to="/"><img class="logo" alt="Groupomania logo" src="../assets/icon-left-font-monochrome-white-modif.png"></router-link>
-    </header>
+    <Header />
     <div class="login_main_container">
       <div class="login_main">    
         <div class="login_form_warning">
           <h1>Connexion à votre compte</h1>
           <p class="warning" v-if="status == 'user_not_found'">
             Email et/ou mot de passe invalide.
-            <br />Attention ! il ne vous reste que 4 tentatives...
+            <br />Attention ! Vous n'avez le droit qu'à 5 tentatives...
           </p>
-          <form action="#" id="login_page_form">
+          <form id="login_page_form">
             <div class="input_error_container">
               <input type="email" v-model="state.email" id="login_page_email" maxlength="255" placeholder="Adresse mail" required>
               <div class="input_error" v-if="v$.email.$error">{{ v$.email.$errors[0].$message }}</div>
@@ -22,7 +20,7 @@
               <div class="input_error" v-if="v$.password.$error">{{ v$.password.$errors[0].$message }}</div>
             </div>
 
-            <button @click="login" :class="{'button--disabled' : !validatedFields}">
+            <button type="button" @click="login" :class="{'button--disabled' : !validatedFields}">
               <span class="bold" v-if="status == 'loading'">Connection ...</span>
               <span class="bold" v-else>Se connecter</span>
             </button>
@@ -42,11 +40,13 @@ import useVuelidate from '@vuelidate/core'
 import { required, email } from '@vuelidate/validators'
 import { reactive, computed } from 'vue'
 import { mapState } from 'vuex'
+import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
 
 export default {
     name: 'Login',
     components: {
+      Header,
       Footer,
     },
     setup () { 
@@ -79,7 +79,7 @@ export default {
                 return false;
             }
         },
-        ...mapState(['status']),
+        ...mapState(['status'])
     }, 
     methods: {
         login () {
@@ -93,15 +93,16 @@ export default {
                 }).then((response) => {
                   console.log(response);
 
-                }).catch(() => {
+                }).catch((error) => {
                   if (self.status == 'user_not_found') {
-                    return alert('Email et/ou mot de passe invalide');
+                    console.log(error)
+                    alert('Email et/ou mot de passe invalide');
                   
                   } else if (self.status == 'error_login_regex') {
-                    return alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !');
+                    alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !');
 
                   } else if (self.status == 'error_blocked') {
-                    return alert('Le nombre d\'essais autorisés a été dépassé, veuillez réessayer ultérieurement.');
+                    alert('Le nombre d\'essais autorisés a été dépassé, veuillez réessayer ultérieurement.');
 
                   } else {
                     return self.$router.push('/:pathMatch(.*)');
@@ -119,18 +120,6 @@ export default {
 .login_page {
   background: url('../assets/building_background.jpg') fixed no-repeat center;
   background-size: cover;
-}
-header {
-  background-color: rgba(8, 8, 58, 0.699);
-  height: 70px;
-  width: 100%;
-}
-.logo {
-  width: 23%;
-  height: 60px;
-  padding: 0px;
-  margin-left: 15px;
-  margin-top: 5px;
 }
 .login_main_container {
   display: flex;

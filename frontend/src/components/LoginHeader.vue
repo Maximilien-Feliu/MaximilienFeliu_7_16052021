@@ -65,13 +65,14 @@ export default {
           this.$store.dispatch('login', {
               email: this.state.email,
               password: this.state.password
-          }).then((response) => {
-            console.log(response);
+              
+          }).then(() => {
+            window.location.reload();
+            this.$router.push('/CompleteProfile');
 
           }).catch(() => {
             if (this.status == 'user_not_found') {
               this.$router.push('/login');
-              return false;
 
             } else if (this.status == 'error_login_regex') {
               alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !');

@@ -6,21 +6,43 @@ let instance = axios.create({
   baseURL: 'http://localhost:3000/api/'
 });
 
+let user = localStorage.getItem('user');
+if (!user) {
+  user = {
+    userId: -1,
+    token: '',
+    isAdmin: '',
+  };
+} else {
+    try {
+      user = JSON.parse(user);
+      instance.defaults.headers.common['Authorization'] = `Bearer ${user.token}`;
+    } catch (ex) {
+      user = {
+        userId: -1,
+        token: '',
+        isAdmin: '',
+      }
+    }
+}
+
 export default createStore({
   state: {
     status: '',
-    user: {
-      userId: -1,
-      token:'',
-      isAdmin: '',
-    },
+    user: user,
+    userInfos: {},
   },
   mutations: {
     setStatus (state, status) {
       state.status = status;
     },
     logUser (state, user) {
+      instance.defaults.headers.common['Authorization'] = `Bearer ${user.token}`;
+      localStorage.setItem('user', JSON.stringify(user));
       state.user = user;
+    },
+    userInfos (state, userInfos) {
+      state.userInfos = userInfos;
     }
   },
   actions: {
@@ -58,7 +80,7 @@ export default createStore({
         instance.post('/auth/login', userInfos) 
         .then((response) => {
           commit('setStatus', 'loggedIn');
-          commit('logUser', response.data)
+          commit('logUser', response.data);
           resolve(response);
         })
         .catch((error) => {
@@ -80,8 +102,40 @@ export default createStore({
           }
         });
       })
-    }
-  },
-  modules: {
+    },
+    getUserInfos: ({commit}) => {
+      commit('setStatus', 'loading');
+      instance.get(`/auth/${user.userId}`)
+      .then((response) => {
+        commit('userInfos', response.data);
+      })
+      .catch(() => {
+        commit('setStatus', 'error_user');
+      })
+    },
+    updateProfile: ({commit}, updateInfos) => {
+      return new Promise((resolve, reject) => {
+        instance.put(`/auth/${user.userId}`, updateInfos) 
+        .then((response) => {
+          commit('setStatus', 'user_updated');
+          commit('userInfos', response.data);
+          resolve(response);
+        })
+        .catch((error) => {
+          if (error.response.status === 403) {
+            commit('setStatus', 'not_allowed_to_update');
+            reject(error);
+
+          } else if (error.response.status === 401) {
+            commit('setStatus', 'error_update_regex');
+            reject(error);
+
+          } else {
+            commit('setStatus', 'error_update');
+            reject(error);
+          }
+        });
+      })  
+    },
   }
 })

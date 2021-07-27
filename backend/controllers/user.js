@@ -15,11 +15,11 @@ exports.signup = (req, res) => {
             email: bufEmail.toString('hex'),  
             password: hash, 
             firstName: req.body.firstName,
-            lastName: req.body.lastName,  
+            lastName: req.body.lastName,   
             department: req.body.department,   
             bio: req.body.bio,  
-            attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,              // get the image segment in the url,                                     
-            isAdmin: 0
+            attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : 'http://localhost:3000/images/profile_default.jpg',              // get the image segment in the url,                                     
+            isAdmin: 0 
         })
         .then(() => res.status(201).json({ message : 'User created succesfully !'}))
         .catch(error => res.status(400).json({ error }));
@@ -28,7 +28,7 @@ exports.signup = (req, res) => {
 };
 
 exports.login = (req, res) => {
-
+ 
     const bufEmail = Buffer.from(req.body.email);
 
     models.User.findOne({ where : { email: bufEmail.toString('hex') }})                               // find the unique email 
@@ -48,7 +48,7 @@ exports.login = (req, res) => {
                         userId: user._id,
                         isAdmin: user.isAdmin
                     },
-                    process.env.SECRET_TOKEN, 
+                    process.env.SECRET_TOKEN,   
                     { expiresIn: '24h' }
                 )
             });
@@ -64,6 +64,7 @@ exports.updateUser = (req, res) => {
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
     const admin = decodedToken.isAdmin;
+    const fileDefault = 'http://localhost:3000/images/profile_default.jpg';
 
     req.file ? (
         models.User.findOne({
@@ -72,10 +73,12 @@ exports.updateUser = (req, res) => {
             }
         })
         .then((user) => {
-            if (user._id === userId || admin === 1) {   
-                const filename = user.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
-            
-                fs.unlinkSync(`images/${filename}`);
+            if (user._id === userId || admin === 1) {  
+                
+                if(user.attachment != fileDefault) {
+                    const filename = user.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
+                    fs.unlinkSync(`images/${filename}`);
+                }
                 
                 let userObject = {
                     ...req.body, 
@@ -86,9 +89,8 @@ exports.updateUser = (req, res) => {
                     where: {
                         _id: req.params.id
                     }
-                }
-                )
-                .then(
+                })
+                .then( 
                     () => {
                         res.status(200).json({
                             message: 'User updated successfully !'
@@ -97,12 +99,15 @@ exports.updateUser = (req, res) => {
                 ).catch(
                     error => {
                         res.status(400).json({
-                            error
+                            error 
                         });
                     }
                 )
             } else {
-                res.status(400).json({ message: "not allowed to update"})
+                const filename = req.file.filename;                             
+                fs.unlinkSync(`images/${filename}`);
+
+                res.status(403).json({ message: "not allowed to update"});
             }
         })
         .catch(
@@ -138,7 +143,7 @@ exports.updateUser = (req, res) => {
                     }
                 ) 
             } else {
-                res.status(400).json({ message: "not allowed to update"})
+                res.status(403).json({ message: "not allowed to update"});
             }      
         }) 
     )
@@ -177,6 +182,7 @@ exports.deleteUser = (req, res) => {
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
     const admin = decodedToken.isAdmin;
+    const fileDefault = 'http://localhost:3000/images/profile_default.jpg';
 
     models.User.findOne({
         where: {
@@ -184,6 +190,12 @@ exports.deleteUser = (req, res) => {
         }
     }).then((user) => {
         if (user._id === userId || admin === 1) {
+
+            if(user.attachment != fileDefault) {
+                const filename = user.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
+                fs.unlinkSync(`images/${filename}`);
+            }
+
             user.destroy({
                 where: {
                     _id: req.params.id
@@ -200,7 +212,7 @@ exports.deleteUser = (req, res) => {
                 }
             );
         } else {
-            res.status(400).json({ message: "not allowed to update"})
+            res.status(400).json({ message: "not allowed to delete"})
         }  
     })  
 }

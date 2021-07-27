@@ -136,8 +136,8 @@ export default {
                     email: this.state.email,
                     password: this.state.password.password
 
-                  }).then(() => {
-                    this.$router.push('/completeProfile')
+                  }).then(async () => {
+                    await this.$router.push('/completeProfile');
 
                   }).catch(() => {
                     this.$router.push('/:pathMatch(.*)');

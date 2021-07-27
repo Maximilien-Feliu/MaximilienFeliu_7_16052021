@@ -8,7 +8,7 @@ const globalRegExp = /^[\w-.,\s\n\(\)!'"\?éèîïÉÈÎÏàçùüöôœÀÇÙÜ
 
 exports.user = (req, res, next) => {
 
-    if (emailRegExp.test(req.body.email) === false || passwordRegExp.test(req.body.password) === false || nameRegExp.test(req.body.firstName) === false || nameRegExp.test(req.body.lastName) === false || nameRegExp.test(req.body.username) === false || departmentRegExp.test(req.body.department) === false || globalRegExp.test(req.body.bio) === false ) {
+    if (emailRegExp.test(req.body.email) === false || passwordRegExp.test(req.body.password) === false || nameRegExp.test(req.body.firstName) === false || nameRegExp.test(req.body.lastName) === false || departmentRegExp.test(req.body.department) === false ) {
      
         return res.status(401).json({ message: 'Bad Request' });    
 
@@ -17,9 +17,10 @@ exports.user = (req, res, next) => {
     };
 };
 
-exports.updateUser = (req, res, next) => {
-    if (nameRegExp.test(req.body.firstName) === false || nameRegExp.test(req.body.lastName) === false || nameRegExp.test(req.body.username) === false || departmentRegExp.test(req.body.department) === false || globalRegExp.test(req.body.bio) === false ) {
-     
+exports.updateUser = (req, res, next) => { // NE MARCHE PAS QUAND C'EST ENVOYE SOUS FORM-DATA !
+
+    if (nameRegExp.test(req.body.firstName) === false || nameRegExp.test(req.body.lastName) === false || departmentRegExp.test(req.body.department) === false || globalRegExp.test(req.body.bio) === false ) {
+    
         return res.status(401).json({ message: 'Bad Request' });    
 
     } else {
