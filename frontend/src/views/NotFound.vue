@@ -1,3 +1,6 @@
 <template>
-    <h1>404 page not found</h1>
+    <div>
+        <h1>Oups... </h1>
+        <p>Veuillez réessayer ultérieurement</p>
+    </div>
 </template>
