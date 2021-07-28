@@ -31,6 +31,7 @@ export default createStore({
     status: '',
     user: user,
     userInfos: {},
+    users: []
   },
   mutations: {
     setStatus (state, status) {
@@ -43,6 +44,9 @@ export default createStore({
     },
     userInfos (state, userInfos) {
       state.userInfos = userInfos;
+    },
+    allUsers (state, users) {
+      state.users = users;
     }
   },
   actions: {
@@ -114,6 +118,7 @@ export default createStore({
       })
     },
     updateProfile: ({commit}, updateInfos) => {
+      commit('setStatus', 'loading');
       return new Promise((resolve, reject) => {
         instance.put(`/auth/${user.userId}`, updateInfos) 
         .then((response) => {
@@ -135,7 +140,22 @@ export default createStore({
             reject(error);
           }
         });
-      })  
+      });  
     },
+    getAllUsers: ({commit}) => {
+      commit('setStatus', 'loading');
+      //return new Promise((resolve, reject) => {
+        instance.get('/auth/')
+        .then((response) => {
+          commit('setStatus', 'succeed');
+          commit('allUsers', response.data);
+        //  resolve(response.data)
+        })
+        .catch(() => {
+          commit('setStatus', 'error_users');
+        //  reject(error);
+        })
+      //})
+    }
   }
 })

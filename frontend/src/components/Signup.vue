@@ -136,7 +136,7 @@ export default {
                     email: this.state.email,
                     password: this.state.password.password
 
-                  }).then(async () => {
+                  }).then(async() => {
                     await this.$router.push('/completeProfile');
 
                   }).catch(() => {
