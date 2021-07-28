@@ -54,7 +54,7 @@ export default {
     },
     mounted: function () { 
         if (this.$store.state.user.userId == -1) {
-            this.$router.push('/');
+            this.$router.push('/home');
             return;
         }
         this.$store.dispatch('getUserInfos');
@@ -82,9 +82,8 @@ export default {
             }
 
             this.$store.dispatch('updateProfile', formData) 
-            .then((response) => {
-                window.location.reload();
-                console.log(response);
+            .then(() => {
+                this.$router.push('/'); 
             })
             .catch(() => {
                 if (this.status == 'not_allowed_to_update') {

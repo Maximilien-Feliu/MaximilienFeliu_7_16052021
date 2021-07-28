@@ -2,11 +2,12 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
 import CompleteProfile from '../views/CompleteProfile.vue'
+import TimelinePage from '../views/TimelinePage.vue'
 import NotFound from '../views/NotFound.vue'
 
 const routes = [
   {
-    path: '/',
+    path: '/home',
     name: 'Home',
     component: Home,
     meta: {
@@ -18,7 +19,15 @@ const routes = [
     name: 'CompleteProfile',
     component: CompleteProfile,
     meta: {
-      title: 'Groupomania - Profile'
+      title: 'Groupomania - Profile to complete'
+    }
+  },
+  {
+    path: '/',
+    name: 'TimelinePage',
+    component: TimelinePage,
+    meta: {
+      title: 'Groupomania'
     }
   },
   {

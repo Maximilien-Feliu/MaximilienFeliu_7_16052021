@@ -90,8 +90,8 @@ export default {
                     email: this.state.email,
                     password: this.state.password
 
-                }).then((response) => {
-                  console.log(response);
+                }).then(() => {
+                  this.$router.push('/timelinePage');
 
                 }).catch((error) => {
                   if (self.status == 'user_not_found') {

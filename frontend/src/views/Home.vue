@@ -41,7 +41,7 @@ export default {
   },
   mounted: function () {
     if (this.$store.state.user.userId != -1) {
-      this.$router.push('/CompleteProfile');
+      this.$router.push('/');
     }
   }
 }

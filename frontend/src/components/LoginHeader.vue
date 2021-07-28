@@ -68,7 +68,7 @@ export default {
               
           }).then(() => {
             window.location.reload();
-            this.$router.push('/CompleteProfile');
+            this.$router.push('/');
 
           }).catch(() => {
             if (this.status == 'user_not_found') {
