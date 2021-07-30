@@ -3,7 +3,7 @@
         <button type="button" class="btn_search"><i class="fas fa-search"></i></button>
         <input type="text" v-model="target" @change="getAllUsers" name="search_bar" id="search_bar" placeholder="Rechercher dans Groupomania">
         <div v-if="target != ''" class="filter">
-            <router-link to="/"><li v-for="user in filteredUsers" :key="user"><img :src="user.attachment" class="profile_picture" /> {{user.firstName}} {{user.lastName}}<div class="border_bottom"></div></li></router-link>
+            <router-link to="/"><li v-for="user in filteredUsers" :key="user"><img :src="user.attachment" class="profile_picture" alt="Photo de profil"/> {{user.firstName}} {{user.lastName}}<div class="border_bottom"></div></li></router-link>
         </div>
     </div>
 </template>
@@ -57,7 +57,8 @@ export default {
 }
 .filter {
     border-radius: 15px;
-    width: 180%;
+    width: 173%;
+    margin-left: 10px;
     background-color: rgba(8, 8, 58, 0.856);
 }
 .border_bottom {
@@ -88,6 +89,7 @@ li img {
 li:hover {
     background-color: rgba(255, 57, 57, 0.836);
     border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
 }
 a {
     text-decoration: none;

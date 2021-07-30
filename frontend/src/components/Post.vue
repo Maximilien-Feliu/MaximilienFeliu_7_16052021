@@ -1,0 +1,193 @@
+<template>
+    <div class="post" @click="inputShorter">
+        <form action="#">
+            <div class="img_post_text">
+                <img class="profile_picture" :src="userInfos.attachment" :alt="'Photo de profil de ' + `${userInfos.firstName}`">
+                <div class="post_area">
+                    <label for="post_text" id="whatsup">Quoi de neuf, {{userInfos.firstName}} ?</label>
+                    <textarea name="post_text" id="post_text" v-model="postText" @click="growUp"></textarea>
+                    <label for="post_file" id="btn_post_file"><i class="fas fa-images"></i>Photo/Video</label>
+                    <img id="preview_img" :class="{'img_disabled' : !previewImage}" :src="previewImage" :alt="'Aperçu de l\'image du post de ' + `${userInfos.firstName}`">
+                    <button type="button" id="btn_preview_image" :class="{'btn_disabled' : !previewImage}" @click="cancelImage">Retirer</button>
+                    <input type="file" name="post_file" id="post_file" accept="image/*" @change="uploadImage">
+                    <button type="button" @click="post" id="btn_post">Publier</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</template>
+
+<script>
+import {mapState} from 'vuex'
+
+export default {
+    name: 'Post',
+    data () {
+        return {
+            postText: '',
+            previewImage: null,
+            attachment: null,
+        }
+    },
+    mounted: function () {
+        this.$store.dispatch('getUserInfos');
+    },
+    computed: {
+        ...mapState({
+            status: 'status',
+            user: 'user',
+            userInfos: 'userInfos'
+        })
+    },
+    methods: {
+        uploadImage(e){
+            this.files = e.target.files[0];
+            this.previewImage = URL.createObjectURL(this.files);
+        },
+        cancelImage () {
+            this.previewImage = null;
+            this.files = null;
+        },
+        post() {
+            const formData = new FormData();
+
+            if(this.files != undefined) {
+                formData.append('attachment', this.files);
+            }
+            if(this.postText != null) {
+                formData.append('text', this.postText.match(/^[\w-.,\s\n\(\)!'"\?éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/));
+            }
+
+            this.$store.dispatch('createPost', formData)
+            .then(() => {
+                window.location.reload();
+            })
+            .catch(() => {
+                if (this.status == 'error_regex') {
+                    alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !')
+                
+                } else {
+                    this.$router.push('/:pathMatch(.*)');
+                }
+            })
+        },
+        growUp(e) {
+            e.target.style.height = '40em';
+            e.target.style.backgroundColor = 'white';
+            e.target.style.border = '1px solid grey';         
+        },
+        inputShorter(e) {
+            const input = document.getElementById('post_text');
+            if(e.target != input) {
+                input.style.height = '4em';
+            }
+        }
+    }
+}
+</script>
+
+<style scoped>
+.post {
+    background-color: white;
+    border-radius: 15px;
+    margin-top: 1em;
+}
+.post form {
+    display: flex;
+    flex-direction: column;
+}
+.img_post_text {
+    display: flex;
+    align-items: center;
+    margin-top: 1em;
+    margin-left: 4em;
+}
+.post_area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 8.5em;
+    margin-top: 1em;
+}
+.profile_picture {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+#whatsup {
+    font-weight: bold;
+}
+textarea {
+    width: 190%;
+    height: 4em;
+    margin-top: 1em;
+    background-color: rgba(128, 128, 128, 0.205);
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: .3s;
+}
+textarea:hover {
+    background-color: rgba(128, 128, 128, 0);
+}
+#btn_post_file {
+    position: relative;
+    left: -5em;
+    cursor: pointer;
+    border: 1px solid grey; 
+    margin-top: 5px;
+    width: 130px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-radius: 5px;
+    transition: .3s;
+}
+#btn_post_file:hover {
+    width: 135px;
+}
+i {
+    color: rgb(255, 57, 57);
+}
+#post_file {
+    display: none;
+}
+#btn_post {
+    cursor: pointer;
+    margin-top: 1em;
+    width: 170px;
+    height: 30px;
+    border-radius: 5px;
+    transform: .3s;
+    background-color: rgba(8, 8, 58, 0.856);
+    color: white;
+    margin-bottom: 1em;
+    transition: .3s;
+}
+#btn_post:hover {
+    background-color: rgba(8, 8, 58, 0.534);
+}
+#preview_img {
+    margin-top: .5em;
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+}
+.img_disabled, .btn_disabled {
+    display: none;
+}
+#btn_preview_image {
+    cursor: pointer;
+    background-color: rgba(8, 8, 58, 0.856);
+    color: white;
+    border-radius: 5px;
+    transition: .3s;
+    position: absolute;
+    top: 27em;
+    right: 35em;
+}
+#btn_preview_image:hover {
+    background-color: rgba(8, 8, 58, 0.534);
+}
+</style>

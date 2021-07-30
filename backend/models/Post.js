@@ -8,11 +8,11 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true
         },
-        body: {
+        text: {
             type: DataTypes.TEXT,
             allowNull: true
         },
-        attachment: {
+        attachment: { 
             type: DataTypes.STRING(255),
             allowNull: true
         }

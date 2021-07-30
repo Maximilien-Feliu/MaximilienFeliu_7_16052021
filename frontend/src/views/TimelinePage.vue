@@ -6,6 +6,7 @@
         </div>
         <div class="main_container">
             <div class="main_timeline">
+                <Post />
 
             </div>
 
@@ -18,16 +19,18 @@ import { mapState } from 'vuex'
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
 import SearchBar from '@/components/SearchBar.vue'
+import Post from '@/components/Post.vue'
 
 export default {
     name: 'TimelinePage',
     components: {
         Header,
         Footer,
-        SearchBar
+        SearchBar,
+        Post,
     },
     data () {
-        
+            
     },
     mounted: function () { 
         if (this.$store.state.user.userId == -1) {
@@ -64,7 +67,6 @@ export default {
     justify-content: center;
 }
 .main_timeline {
-    background-color: white;
     width: 50%;
     height: 50vh;
 }

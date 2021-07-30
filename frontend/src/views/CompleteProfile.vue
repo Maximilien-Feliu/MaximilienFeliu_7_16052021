@@ -12,7 +12,7 @@
 
                 <div class="img_update">
                     <div class="img_border">
-                        <img :src="previewImage || userInfos.attachment" alt="Votre photo de profil">
+                        <img :src="previewImage || userInfos.attachment" :alt="'photo de profil de ' + `${userInfos.firstName}`">
                     </div>
                     <br />
                     <label for="file_upload"><div class="btn_file">Modifier</div></label>

@@ -55,7 +55,7 @@ export default createStore({
       return new Promise((resolve, reject) => {
         instance.post('/auth/signup', userInfos) 
         .then((response) => {
-          commit('setStatus', 'created');
+          commit('setStatus', 'userCreated');
           resolve(response);
         })
         .catch((error) => {
@@ -144,18 +144,34 @@ export default createStore({
     },
     getAllUsers: ({commit}) => {
       commit('setStatus', 'loading');
-      //return new Promise((resolve, reject) => {
-        instance.get('/auth/')
+      instance.get('/auth/')
+      .then((response) => {
+        commit('setStatus', 'succeed');
+        commit('allUsers', response.data);
+      })
+      .catch(() => {
+        commit('setStatus', 'error_users');
+      })
+    },
+    createPost: ({commit}, postInfos) => {
+      commit('setStatus', 'loading');
+      return new Promise((resolve, reject) => {
+        instance.post('/post/', postInfos)
         .then((response) => {
-          commit('setStatus', 'succeed');
-          commit('allUsers', response.data);
-        //  resolve(response.data)
+          commit('setStatus', 'postCreated');
+          resolve(response);
         })
-        .catch(() => {
-          commit('setStatus', 'error_users');
-        //  reject(error);
+        .catch((error) => {
+          if (error.response.status === 401) {
+            commit('setStatus', 'error_regex');
+            reject(error);
+
+          }  else {
+            commit('setStatus', 'error_create');
+            reject(error);
+          } 
         })
-      //})
+      })
     }
   }
 })

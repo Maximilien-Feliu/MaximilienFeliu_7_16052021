@@ -10,13 +10,13 @@ exports.createPost = (req, res) => {
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
     return models.Post.create({
-        body: req.body.body,
+        text: req.body.body,
         attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
         UserId: userId
     })
     .then(() => res.status(201).json({ message : "post added successfully !"}))
     .catch(error => res.status(400).json({ error }));
-}
+} 
 
 exports.updatePost = (req, res) => {
 
