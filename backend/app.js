@@ -6,8 +6,8 @@ const { sequelize } = require('./models/index');
 
 const helmet = require('helmet');
 const toobusy = require('toobusy-js');
-const rateLimiter = require('./middleware/rateLimiter');                // middleware to handle the number of requests by Ip
 const hpp = require('hpp');                                             // protect against HTTP Parameter Pollution attacks
+const rateLimiter = require('./middleware/rateLimiter.js');
 
 const userRoutes = require( './routes/user.js');
 const postRoutes = require('./routes/post.js');
@@ -41,8 +41,8 @@ app.use((req, res, next) => {
 
 app.use(cors());
 app.use(helmet());
-app.use(rateLimiter);
 app.use(hpp());
+app.use(rateLimiter);
 
 app.use('/images', express.static(path.join(__dirname, 'images')));       // respond to the request and serve the static folder 'images'
 

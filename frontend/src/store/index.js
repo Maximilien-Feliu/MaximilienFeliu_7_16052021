@@ -17,7 +17,7 @@ if (!user) {
     try {
       user = JSON.parse(user);
       instance.defaults.headers.common['Authorization'] = `Bearer ${user.token}`;
-    } catch (ex) {
+    } catch (e) {
       user = {
         userId: -1,
         token: '',
@@ -31,7 +31,8 @@ export default createStore({
     status: '',
     user: user,
     userInfos: {},
-    users: []
+    users: [],
+    posts: []
   },
   mutations: {
     setStatus (state, status) {
@@ -47,6 +48,9 @@ export default createStore({
     },
     allUsers (state, users) {
       state.users = users;
+    },
+    allPosts (state, posts) {
+      state.posts = posts
     }
   },
   actions: {
@@ -117,6 +121,16 @@ export default createStore({
         commit('setStatus', 'error_user');
       })
     },
+    getUserByItsId: ({commit}, userId) => {
+      commit('setStatus', 'loading');
+      instance.get(`/auth/${userId.userId}`)
+      .then((response) => {
+        commit('userInfos', response.data);
+      })
+      .catch(() => {
+        commit('setStatus', 'error_user');
+      })
+    },
     updateProfile: ({commit}, updateInfos) => {
       commit('setStatus', 'loading');
       return new Promise((resolve, reject) => {
@@ -136,21 +150,25 @@ export default createStore({
             reject(error);
 
           } else {
-            commit('setStatus', 'error_update');
+            commit('setStatus', 'error_update'); 
             reject(error);
           }
         });
       });  
     },
-    getAllUsers: ({commit}) => {
+    getAllUsers: ({commit}, users) => {
       commit('setStatus', 'loading');
-      instance.get('/auth/')
-      .then((response) => {
-        commit('setStatus', 'succeed');
-        commit('allUsers', response.data);
-      })
-      .catch(() => {
-        commit('setStatus', 'error_users');
+      return new Promise((resolve, reject) => { 
+        instance.post('/auth/', users)
+        .then((response) => {
+          commit('setStatus', 'succeed');
+          commit('allUsers', response.data);
+          resolve(response.data);
+        })
+        .catch((error) => {
+          commit('setStatus', 'error_users');
+          reject(error);
+        })
       })
     },
     createPost: ({commit}, postInfos) => {
@@ -171,6 +189,17 @@ export default createStore({
             reject(error);
           } 
         })
+      })
+    },
+    getAllPosts: ({commit}) => {
+      commit('setStatus', 'loading');
+      instance.get('/post/')
+      .then((response) => {
+        commit('setStatus', 'succeed');
+        commit('allPosts', response.data);
+      })
+      .catch(() => {
+        commit('setStatus', 'error_users');
       })
     }
   }

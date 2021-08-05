@@ -10,7 +10,7 @@ const regExp = require('../middleware/regExp.js');                              
 
 const router = express.Router();
 
-router.get('/', auth, userCtrl.getAllUsers);
+router.post('/', auth, userCtrl.getAllUsers);
 router.post('/signup', limiterSignup, regExp.user, passwordValidator, multer, userCtrl.signup); 
 router.post('/login', limiterLogin, regExp.user, multer, userCtrl.login);
 router.get('/:id', auth, userCtrl.getOneUser);

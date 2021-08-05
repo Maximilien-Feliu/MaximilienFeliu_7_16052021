@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const models = require('../models');
 const jwt = require('jsonwebtoken');    
 const fs = require('fs');    
+const { Op } = require("sequelize");
 
 /*****  create a new user   *****/
 exports.signup = (req, res) => {                   
@@ -150,7 +151,13 @@ exports.updateUser = (req, res) => {
 }
 
 exports.getAllUsers = (req, res) => {
-    models.User.findAll()
+    models.User.findAll({
+        where: {
+            firstName: {
+                [Op.like]: '%' + req.body.firstName + '%' 
+            } 
+        }
+    })
     .then(users => {
         res.status(200).json(users);
     })

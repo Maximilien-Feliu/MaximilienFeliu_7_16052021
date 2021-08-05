@@ -7,10 +7,17 @@
                     <label for="post_text" id="whatsup">Quoi de neuf, {{userInfos.firstName}} ?</label>
                     <textarea name="post_text" id="post_text" v-model="postText" @click="growUp"></textarea>
                     <label for="post_file" id="btn_post_file"><i class="fas fa-images"></i>Photo/Video</label>
-                    <img id="preview_img" :class="{'img_disabled' : !previewImage}" :src="previewImage" :alt="'Aperçu de l\'image du post de ' + `${userInfos.firstName}`">
-                    <button type="button" id="btn_preview_image" :class="{'btn_disabled' : !previewImage}" @click="cancelImage">Retirer</button>
+
+                    <div class="img_option">
+                        <img id="preview_img" :class="{'img_disabled' : !previewImage}" :src="previewImage" :alt="'Aperçu de l\'image du post de ' + `${userInfos.firstName}`">
+                        <button type="button" id="btn_preview_image" :class="{'btn_disabled' : !previewImage}" @click="cancelImage">Retirer</button>
+                    </div>
+
                     <input type="file" name="post_file" id="post_file" accept="image/*" @change="uploadImage">
-                    <button type="button" @click="post" id="btn_post">Publier</button>
+                    <button type="button" @click="post" id="btn_post">
+                        <span v-if="status == 'loading'">Publication ...</span>
+                        <span v-else>Publier</span>
+                    </button>
                 </div>
             </div>
         </form>
@@ -24,7 +31,7 @@ export default {
     name: 'Post',
     data () {
         return {
-            postText: '',
+            postText: null,
             previewImage: null,
             attachment: null,
         }
@@ -168,6 +175,9 @@ i {
 #btn_post:hover {
     background-color: rgba(8, 8, 58, 0.534);
 }
+.img_option {
+    position: relative;
+}
 #preview_img {
     margin-top: .5em;
     width: 250px;
@@ -184,8 +194,8 @@ i {
     border-radius: 5px;
     transition: .3s;
     position: absolute;
-    top: 27em;
-    right: 35em;
+    top: 9em;
+    right: -6em;
 }
 #btn_preview_image:hover {
     background-color: rgba(8, 8, 58, 0.534);

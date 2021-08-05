@@ -1,9 +1,9 @@
 <template>
     <div class="search">
         <button type="button" class="btn_search"><i class="fas fa-search"></i></button>
-        <input type="text" v-model="target" @change="getAllUsers" name="search_bar" id="search_bar" placeholder="Rechercher dans Groupomania">
+        <input type="text" v-model="target" @input="filteredUsers" name="search_bar" id="search_bar" placeholder="Rechercher dans Groupomania">
         <div v-if="target != ''" class="filter">
-            <router-link to="/"><li v-for="user in filteredUsers" :key="user"><img :src="user.attachment" class="profile_picture" alt="Photo de profil"/> {{user.firstName}} {{user.lastName}}<div class="border_bottom"></div></li></router-link>
+            <router-link to="/" v-for="user in users" :key="user"><li><img :src="user.attachment" class="profile_picture" :alt="'Photo de profil de ' + `${user.firstName}`"/> {{user.firstName}} {{user.lastName}}<div class="border_bottom"></div></li></router-link>
         </div>
     </div>
 </template>
@@ -15,22 +15,20 @@ export default {
     name: 'SearchBar',
     data () {
         return {
-            target: ''
+            target: '',
         }
     },
     computed: {
         filteredUsers() {
-            this.$store.dispatch('getAllUsers');
-
-            return this.$store.state.users.filter(user => {
-                const userName = user.firstName + ' ' + user.lastName;
-                return userName.match(this.target);
+            this.$store.dispatch('getAllUsers', {
+                firstName: this.target
             })
         },
         ...mapState({
             status: 'status',
+            users: ['users'],
         })
-    }
+    },
 }
 </script>
 

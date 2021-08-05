@@ -10,7 +10,7 @@ exports.createPost = (req, res) => {
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
     return models.Post.create({
-        text: req.body.body,
+        text: req.body.text,
         attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
         UserId: userId
     })
@@ -101,7 +101,12 @@ exports.updatePost = (req, res) => {
 }
 
 exports.getAllPosts = (req, res) => {
-    models.Post.findAll()
+    models.Post.findAll({
+        include: [{
+            model: models.User,
+            attributes: ['_id', 'firstName', 'lastName', 'attachment']
+        }]
+    })
     .then(posts => {
         res.status(200).json(posts);
     })

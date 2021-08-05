@@ -7,10 +7,10 @@
         <div class="main_container">
             <div class="main_timeline">
                 <Post />
-
+                <Timeline />
             </div>
-
         </div>
+        <Footer />
     </div>
 </template>
 
@@ -20,6 +20,7 @@ import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import Post from '@/components/Post.vue'
+import Timeline from '@/components/Timeline.vue'
 
 export default {
     name: 'TimelinePage',
@@ -28,9 +29,10 @@ export default {
         Footer,
         SearchBar,
         Post,
+        Timeline,
     },
     data () {
-            
+
     },
     mounted: function () { 
         if (this.$store.state.user.userId == -1) {
@@ -52,7 +54,6 @@ export default {
 .complete_timeline_page {
     background: url('../assets/building_background.jpg') fixed no-repeat center;
     background-size: cover;
-    height: 100vh;
 }
 .header_search_bar {
     position: relative;
@@ -68,6 +69,5 @@ export default {
 }
 .main_timeline {
     width: 50%;
-    height: 50vh;
 }
 </style>
