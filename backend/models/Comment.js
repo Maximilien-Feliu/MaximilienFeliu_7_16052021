@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true
         },
-        body: {
+        text: {
             type: DataTypes.TEXT,
             allowNull: true
         },
@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey : { 
                 allowNull: false
             },
-            onDelete: 'cascade' 
+            onDelete: 'cascade'  
         });
         Comment.hasMany(models.CommentReaction);
     };

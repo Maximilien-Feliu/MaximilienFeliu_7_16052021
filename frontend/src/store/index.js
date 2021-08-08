@@ -32,7 +32,7 @@ export default createStore({
     user: user,
     userInfos: {},
     users: [],
-    posts: []
+    posts: [],
   },
   mutations: {
     setStatus (state, status) {
@@ -50,8 +50,8 @@ export default createStore({
       state.users = users;
     },
     allPosts (state, posts) {
-      state.posts = posts
-    }
+      state.posts = posts;
+    },
   },
   actions: {
     createAccount: ({commit}, userInfos) => {
@@ -199,8 +199,28 @@ export default createStore({
         commit('allPosts', response.data);
       })
       .catch(() => {
-        commit('setStatus', 'error_users');
+        commit('setStatus', 'error_posts');
       })
-    }
+    },
+    createComment: ({commit}, commentInfos) => {
+      commit('setStatus', 'loading');
+      return new Promise((resolve, reject) => {
+        instance.post(`/post/${commentInfos.postId}/comment`, commentInfos.formData)
+        .then((response) => {
+          commit('setStatus', 'commentCreated');
+          resolve(response);
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            commit('setStatus', 'error_regex');
+            reject(error);
+
+          }  else {
+            commit('setStatus', 'error_create');
+            reject(error);
+          } 
+        })
+      })
+    },
   }
 })

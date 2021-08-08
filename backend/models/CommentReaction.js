@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
         applaud: {
             type: DataTypes.STRING(7),
             allowNull: true
+        },
+        cry: {
+            type: DataTypes.STRING(7),
+            allowNull: true
         }
     }); 
     CommentReaction.associate = (models) => {

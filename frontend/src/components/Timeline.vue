@@ -1,6 +1,6 @@
 <template>
     <div class="timeline">
-        <li class="post" v-for="post in posts" :key="post.id">
+        <li class="post" v-for="(post, i) in posts" :key="post._id">
             <div class="infos_user_post">
                 <img :src="post.User.attachment" :alt="'Photo de profil de ' + `${post.User.firstName}`" class="user_profile_picture" />
                 <div class="infos_user_date">
@@ -9,24 +9,71 @@
                     <span class="created_at">{{moment(post.createdAt)}}</span>
                 </div>
             </div>
+
             <div class="post_content">
                 <p class="post_text">{{post.text}}</p>
-                <img class="img_post" :src="post.attachment" :alt="'attachement relié à la publication de ' + `${post.User.firstName}`">
+                <img v-if="post.attachment" class="img_post" :src="post.attachment" :alt="'attachement relié à la publication de ' + `${post.User.firstName}`">
             </div>
+            <div class="post_reactions_info">
+                <div class="reaction_total">{{post.PostReactions.length}} Reactions</div>
+                <div class="comments_total" @click="selectComment(i)">{{post.Comments.length}} Commentaires</div>
+            </div>
+
             <div class="buttons">
-                <button class="button_post_react" type="button">
+                <button class="btn_post_react" type="button">
                     <i class="far fa-heart"></i>
-                    J'aime
+                    Réagir
                 </button> 
-                <button class="button_post_react" type="button">
+                <label for="input_comment" id="label_comment" class="btn_post_react" >
                     <i class="far fa-comments"></i>
                     Commenter
-                </button>
-                <button class="button_post_react" type="button">
+                </label>
+                <button class="btn_post_react" id="btn_share" type="button">
                     <i class="far fa-share-square"></i>
                     Partager
                 </button>
             </div>
+
+            <div class="comment_section">
+                <div class="write_comment">
+                    <img :src="userInfos.attachment" :alt="'photo de profil de ' + `${userInfos.firstName}`">
+                    <input type="text" v-model="commentText" class="input_comment" name="input_comment" placeholder="Écrivez un commentraire...">
+                    <label for="comment_file" id="btn_comment_file"><i class="fas fa-images"></i></label>
+                    <input type="file" name="comment_file" id="comment_file" accept="image/*" @change="uploadImage">
+                    <button class="btn_comment" type="button" @click="comment(post._id)">Commenter</button>
+                </div>
+                <div class="img_option">
+                    <img :class="{'disappear' : !previewImage}" :src="previewImage" :alt="'Aperçu de l\'image du commentaire de ' + `${userInfos.firstName}`">
+                    <button type="button" :class="{'disappear' : !previewImage}" @click="cancelImage">Retirer</button>
+                </div>
+
+                <div class="last_comment" v-if="post.Comments.length > 0">
+                    <div class="comment_user_picture">
+                        <img :src="post.Comments[0].User.attachment" :alt="'Photo de profil de ' + `${post.Comments[0].User.firstName}`">
+                    </div>
+                    <div class="comment_content">
+                        <div class="comment_bubble">
+                            <span class="comment_username bold">{{post.Comments[0].User.firstName}} {{post.Comments[0].User.lastName}}</span>
+                            <p class="comment_text">{{post.Comments[0].text}}</p>
+                        </div>
+                        <img v-if="post.Comments[0].attachment" :src="post.Comments[0].attachment" :alt="'attachement commentaire de ' + `${post.Comments[0].User.firstName}`">
+                    </div>
+                </div>
+
+                <li class="hide" :class="{'show_comments' : i === activeComments && index > 0}" v-for="(comment, index) in post.Comments" :key="comment._id">  
+                    <div class="comment_user_picture">
+                        <img :src="comment.User.attachment" :alt="'Photo de profil de ' + `${comment.User.firstName}`">
+                    </div>
+                    <div class="comment_content">
+                        <div class="comment_bubble">
+                            <span class="comment_username bold">{{comment.User.firstName}} {{comment.User.lastName}}</span>
+                            <p class="comment_text">{{comment.text}}</p>
+                        </div>
+                        <img v-if="comment.attachment" :src="comment.attachment" :alt="'attachement commentaire de ' + `${comment.User.firstName}`">
+                        <div v-if="index == (post.Comments.length - 1)" class="hide_comments--option" @click="hideComments">Cacher les commentaires</div>
+                    </div> 
+                </li>
+            </div>      
         </li>
     </div>
 </template>
@@ -37,8 +84,17 @@ import moment from 'moment'
 
 export default {
     name: 'Timeline',
+    data () {
+        return {
+            commentText: null,
+            previewImage: null,
+            attachment: null,
+            activeComments: null,
+        }
+    },
     mounted: function () {
         this.$store.dispatch('getAllPosts');
+        this.$store.dispatch('getUserInfos');
     },
     computed: {
         ...mapState({
@@ -51,6 +107,48 @@ export default {
     methods: {
         moment (date) {
             return moment(date).format('DD-MM-YYYY [à] hh:mm');
+        },
+        uploadImage (e) {
+            this.files = e.target.files[0];
+            this.previewImage = URL.createObjectURL(this.files);
+        },
+        cancelImage () {
+            this.previewImage = null;
+            this.files = null;
+        },
+        comment (postId) {
+            const formData = new FormData();
+
+            if(this.files != undefined || this.files != null) {
+                formData.append('attachment', this.files);
+            }
+            if(this.commentText != null) {
+                formData.append('text', this.commentText);
+            }
+            this.$store.dispatch('createComment', {
+                formData,
+                postId: postId
+            })
+            .then(() => {
+                window.location.reload();
+            })
+            .catch(() => {
+                if (this.status == 'error_regex') {
+                    alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !')
+                
+                } else {
+                    this.$router.push('/:pathMatch(.*)');
+                }
+            })
+        },
+        selectComment (i) {     
+            this.activeComments = i;
+        },
+        hideComments (){
+            this.activeComments = null;
+        },
+        test(comment) {
+            console.log(comment)
         }
     }
 }
@@ -100,11 +198,27 @@ export default {
     height: 20em;
     object-fit: cover;
 }
+.post_reactions_info {
+    margin-top: .3em;
+    margin-left: .4em;
+    margin-bottom: .3em;
+    width: 98%;
+    display: flex;
+    justify-content: space-between;
+}
+.comments_total, .hide_comments--option {
+    text-decoration: underline;
+    cursor: pointer;
+    transition: .3s;
+}
+.comments_total:hover, .hide_comments--option:hover {
+    color: rgb(255, 57, 57);
+}
 .buttons {
     width: 100%;
     display: flex;
 }
-.button_post_react {
+.btn_post_react {
     cursor: pointer;
     border: none;
     width: 34%;
@@ -114,8 +228,148 @@ export default {
     font-weight: bold;
     transition: .3s;
 }
-.button_post_react:hover {
+.btn_post_react:hover {
     background-color: rgba(8, 8, 58, 0.856);
     color: white;
+}
+#label_comment {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: smaller;
+}
+#label_comment i {
+    margin-right: 5px;
+}
+#btn_share {
+    border-right: none;
+}
+.comment_section {
+    margin-top: 1em;
+}
+.write_comment {
+    display: flex;
+    align-items: center;
+    margin-left: 2em;
+    margin-bottom: 1em;
+}
+.input_comment {
+    width: 60%;
+    height: 2em;
+    border-radius: 10px;
+    background-color: aliceblue;
+    border: 1px solid grey;
+}
+::placeholder {
+    padding-left: 1em;
+    padding-top: .5em;
+}
+.write_comment img, .comment_user_picture img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 1em;
+}
+.button--disabled {
+  pointer-events: none;
+  background-color: rgba(194, 194, 194, 0.589);
+  color: rgba(0, 0, 0, 0.589);
+}
+.disappear, #comment_file, .hide {
+    display: none;
+}
+.btn_comment {
+    margin-left: .5em;
+    cursor: pointer;
+    background-color: rgba(8, 8, 58, 0.856);
+    color: white;
+    height: 2em;
+    border-radius: 5px;
+    transition: .3s;
+}
+.btn_comment:hover {
+    background-color: rgba(8, 8, 58, 0.534); 
+}
+#btn_comment_file {
+    color: rgb(255, 57, 57);
+    margin-left: .5em;
+    cursor: pointer;
+}
+#btn_comment_file i:hover {
+    font-size: 1.5em;
+}
+.img_option {
+    width: 90%;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+.img_option img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+}
+.img_option button {
+    cursor: pointer;
+    height: 2em;
+    margin-top: 2.5em;
+    margin-left: 1em;
+    background-color: rgba(8, 8, 58, 0.856);
+    color: white;
+    border-radius: 5px;
+    transition: .3s;
+}
+.img_option button:hover {
+    background-color: rgba(8, 8, 58, 0.534); 
+}
+.last_comment, .show_comments {
+    display: flex;
+    margin-left: 2.5em;
+    margin-bottom: 2em;
+}
+.comment_user_picture {
+    align-items: top;
+}
+.comment_content {
+    font-size: smaller;
+}
+.comment_bubble::before {
+    content: '';
+    border: 2px solid grey;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    position: absolute;
+    left: -1em;
+    box-shadow: -1px 1px grey;
+}
+.comment_bubble {
+    box-shadow: inset 1px 1px rgba(0, 0, 0, 0.459),
+                inset -1px -1px rgba(0, 0, 0, 0.459),
+                -1px 1px grey;
+    border-radius: 10px;
+    padding-bottom: .1em;
+    padding-right: 1em; 
+    padding-left: 1em;
+    padding-top: .3em;
+    margin-right: 1em;
+    position: relative;
+}
+.comment_username {
+    margin-bottom: 0px;
+}
+.comment_text {
+    margin-top: 0px;
+}
+.comment_content img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+.hide_comments--option {
+    margin-top: 2em;
+    font-size: larger;
 }
 </style>

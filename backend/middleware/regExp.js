@@ -29,7 +29,8 @@ exports.updateUser = (req, res, next) => { // NE MARCHE PAS QUAND C'EST ENVOYE S
 }
 
 exports.postOrComment = (req, res, next) => {
-    if (globalRegExp.test(req.body.body) === false) {
+
+    if (globalRegExp.test(req.body.text) === false) {
         return res.status(401).json({ message: 'Bad Request' });
     }else {
         return next();

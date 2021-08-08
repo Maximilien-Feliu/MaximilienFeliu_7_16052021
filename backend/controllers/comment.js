@@ -8,14 +8,16 @@ exports.createComment = (req, res) => {
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
-    return models.Comment.create({
-        body: req.body.body,
-        attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
-        UserId: userId,
-        PostId: req.params.id
-    })
-    .then(() => res.status(201).json({ message : 'Comment added succesfully !'}))
-    .catch(error => res.status(400).json({ error }));
+    if (req.body.text || req.body.attachment) {
+        return models.Comment.create({
+            text: req.body.text,
+            attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
+            UserId: userId,
+            PostId: req.params.id
+        })
+        .then(() => res.status(201).json({ message : 'Comment added succesfully !'}))
+        .catch(error => res.status(400).json({ error }));
+    }
 }
 
 exports.updateComment = (req, res) => {
@@ -101,7 +103,15 @@ exports.updateComment = (req, res) => {
 }
 
 exports.getAllComments = (req, res) => {
-    models.Comment.findAll()
+    models.Comment.findAll({
+        where: {
+            postId: req.params.id
+        },
+        include: [{
+            model: models.User,
+            attributes: ['_id', 'firstName', 'lastName', 'attachment']
+        }]
+    })
     .then(comments => {
         res.status(200).json(comments);
     })

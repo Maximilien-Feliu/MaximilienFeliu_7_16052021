@@ -1,6 +1,7 @@
 const models = require('../models');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');           // import the token package
+const { sequelize } = require('../models');
 
 
 exports.createPost = (req, res) => {
@@ -9,13 +10,15 @@ exports.createPost = (req, res) => {
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
-    return models.Post.create({
-        text: req.body.text,
-        attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
-        UserId: userId
-    })
-    .then(() => res.status(201).json({ message : "post added successfully !"}))
-    .catch(error => res.status(400).json({ error }));
+    if (req.body.text || req.body.attachment) {
+        return models.Post.create({
+            text: req.body.text,
+            attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
+            UserId: userId
+        })
+        .then(() => res.status(201).json({ message : "post added successfully !"}))
+        .catch(error => res.status(400).json({ error }));
+    }
 } 
 
 exports.updatePost = (req, res) => {
@@ -102,10 +105,33 @@ exports.updatePost = (req, res) => {
 
 exports.getAllPosts = (req, res) => {
     models.Post.findAll({
-        include: [{
-            model: models.User,
-            attributes: ['_id', 'firstName', 'lastName', 'attachment']
-        }]
+        order: [
+            ['createdAt', 'DESC']
+        ],
+        include: [
+            {
+                model: models.User,
+                attributes: ['_id', 'firstName', 'lastName', 'attachment']
+            },
+            {
+                model: models.Comment,
+                separate: true, 
+                order: [['createdAt', 'DESC']],
+                attributes: ['_id', 'text', 'attachment'],
+                include: [
+                    {
+                        model: models.User,
+                        attributes: ['_id', 'firstName', 'lastName', 'attachment']
+                    },
+                    {
+                        model: models.CommentReaction
+                    }
+                ]
+            },
+            {
+                model: models.PostReaction
+            }
+        ],
     })
     .then(posts => {
         res.status(200).json(posts);

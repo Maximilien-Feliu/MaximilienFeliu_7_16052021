@@ -3,6 +3,7 @@ const dotenv = require( 'dotenv');
 const cors = require( 'cors');
 const path = require( 'path');
 const { sequelize } = require('./models/index');
+const formData = require('express-form-data');
 
 const helmet = require('helmet');
 const toobusy = require('toobusy-js');
@@ -42,14 +43,16 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(helmet());
 app.use(hpp());
-app.use(rateLimiter);
+app.use(rateLimiter); 
 
+/***** handle formData *****/
 app.use('/images', express.static(path.join(__dirname, 'images')));       // respond to the request and serve the static folder 'images'
+//app.use(formData.parse());
 
 /*****  middleware to handle POST requests (extract the JSON Object)  
  *****  set a limit of request body size to avoid large request bodies = require( attackers  *****/
- app.use(express.urlencoded({ extended: true, limit: "100kb" }));          // parse the url encoded data with the qs library
- app.use(express.json({ limit: "100kb" }));                                // transform the request body to json 
+app.use(express.urlencoded({ extended: true, limit: "100kb" }));          // parse the url encoded data with the qs library
+app.use(express.json({ limit: "100kb" }));                                // transform the request body to json 
 
 sequelize.sync();
 

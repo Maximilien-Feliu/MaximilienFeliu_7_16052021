@@ -5,12 +5,12 @@
                 <img class="profile_picture" :src="userInfos.attachment" :alt="'Photo de profil de ' + `${userInfos.firstName}`">
                 <div class="post_area">
                     <label for="post_text" id="whatsup">Quoi de neuf, {{userInfos.firstName}} ?</label>
-                    <textarea name="post_text" id="post_text" v-model="postText" @click="growUp"></textarea>
+                    <textarea name="post_text" id="post_text" v-model="postText" placeholder="Écrivez ce que vous ressentez actuellement..." @click="growUp"></textarea>
                     <label for="post_file" id="btn_post_file"><i class="fas fa-images"></i>Photo/Video</label>
 
                     <div class="img_option">
-                        <img id="preview_img" :class="{'img_disabled' : !previewImage}" :src="previewImage" :alt="'Aperçu de l\'image du post de ' + `${userInfos.firstName}`">
-                        <button type="button" id="btn_preview_image" :class="{'btn_disabled' : !previewImage}" @click="cancelImage">Retirer</button>
+                        <img id="preview_img" :class="{'disappear' : !previewImage}" :src="previewImage" :alt="'Aperçu de l\'image du post de ' + `${userInfos.firstName}`">
+                        <button type="button" id="btn_preview_image" :class="{'disappear' : !previewImage}" @click="cancelImage">Retirer</button>
                     </div>
 
                     <input type="file" name="post_file" id="post_file" accept="image/*" @change="uploadImage">
@@ -62,7 +62,7 @@ export default {
                 formData.append('attachment', this.files);
             }
             if(this.postText != null) {
-                formData.append('text', this.postText.match(/^[\w-.,\s\n\(\)!'"\?éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/));
+                formData.append('text', this.postText);
             }
 
             this.$store.dispatch('createPost', formData)
@@ -81,7 +81,8 @@ export default {
         growUp(e) {
             e.target.style.height = '40em';
             e.target.style.backgroundColor = 'white';
-            e.target.style.border = '1px solid grey';         
+            e.target.style.border = '1px solid grey'; 
+            e.target.style.boxShadow = 'none';        
         },
         inputShorter(e) {
             const input = document.getElementById('post_text');
@@ -129,14 +130,20 @@ textarea {
     width: 190%;
     height: 4em;
     margin-top: 1em;
-    background-color: rgba(128, 128, 128, 0.205);
+    box-shadow: inset 2px 2px rgba(0, 0, 0, 0.459),
+                inset -2px -2px rgba(0, 0, 0, 0.459);
     border: none;
     cursor: pointer;
     border-radius: 10px;
     transition: .3s;
 }
+::placeholder {
+    padding-left: 1em;
+    padding-top: .5em;
+}
 textarea:hover {
     background-color: rgba(128, 128, 128, 0);
+    border: 1px solid grey;
 }
 #btn_post_file {
     position: relative;
@@ -156,9 +163,6 @@ textarea:hover {
 }
 i {
     color: rgb(255, 57, 57);
-}
-#post_file {
-    display: none;
 }
 #btn_post {
     cursor: pointer;
@@ -184,7 +188,12 @@ i {
     height: 250px;
     object-fit: cover;
 }
-.img_disabled, .btn_disabled {
+.button--disabled {
+  pointer-events: none;
+  background-color: rgba(194, 194, 194, 0.589);
+  color: rgba(0, 0, 0, 0.589);
+}
+.disappear, #post_file {
     display: none;
 }
 #btn_preview_image {
