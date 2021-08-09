@@ -9,15 +9,17 @@ module.exports = (sequelize, DataTypes) => {
             autoIncrement: true
         },
         text: {
-            type: DataTypes.TEXT,
+            type: DataTypes.TEXT, 
             allowNull: true
         },
         attachment: { 
             type: DataTypes.STRING(255),
             allowNull: true
         }
+    }, {
+        charset: 'utf8mb4'
     }); 
-    Post.associate = (models) => { 
+    Post.associate = (models) => {  
         Post.belongsTo(models.User, { 
             foreignKey : { 
                 allowNull: false

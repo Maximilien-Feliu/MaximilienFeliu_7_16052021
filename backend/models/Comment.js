@@ -16,6 +16,8 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(255),
             allowNull: true
         } 
+    }, {
+        charset: 'utf8mb4'
     }); 
     Comment.associate = (models) => {
         Comment.belongsTo(models.User, { 

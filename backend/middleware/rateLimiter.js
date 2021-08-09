@@ -16,7 +16,7 @@ const opts = {
     storeClient: pool,
     dbName: process.env.DB_NAME,
     tableName: 'global_requests_limit', // all limiters store data in one table
-    points: 10, // Number of points
+    points: 500, // Number of points
     duration: 1, // Per second(s)
 };
   

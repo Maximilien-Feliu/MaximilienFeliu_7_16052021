@@ -40,11 +40,14 @@
                     <input type="text" v-model="commentText" class="input_comment" name="input_comment" placeholder="Écrivez un commentraire...">
                     <label for="comment_file" id="btn_comment_file"><i class="fas fa-images"></i></label>
                     <input type="file" name="comment_file" id="comment_file" accept="image/*" @change="uploadImage">
+                    
+                    <Emojis class="emojis_comment" @append="updateInputComment"></Emojis>
+
                     <button class="btn_comment" type="button" @click="comment(post._id)">Commenter</button>
                 </div>
                 <div class="img_option">
-                    <img :class="{'disappear' : !previewImage}" :src="previewImage" :alt="'Aperçu de l\'image du commentaire de ' + `${userInfos.firstName}`">
-                    <button type="button" :class="{'disappear' : !previewImage}" @click="cancelImage">Retirer</button>
+                    <img :class="{'hide' : !previewImage}" :src="previewImage" :alt="'Aperçu de l\'image du commentaire de ' + `${userInfos.firstName}`">
+                    <button type="button" :class="{'hide' : !previewImage}" @click="cancelImage">Retirer</button>
                 </div>
 
                 <div class="last_comment" v-if="post.Comments.length > 0">
@@ -57,6 +60,8 @@
                             <p class="comment_text">{{post.Comments[0].text}}</p>
                         </div>
                         <img v-if="post.Comments[0].attachment" :src="post.Comments[0].attachment" :alt="'attachement commentaire de ' + `${post.Comments[0].User.firstName}`">
+                        <br v-if="post.Comments[0].attachment" />
+                        <span class="comment_like bold">J'aime</span>
                     </div>
                 </div>
 
@@ -70,6 +75,8 @@
                             <p class="comment_text">{{comment.text}}</p>
                         </div>
                         <img v-if="comment.attachment" :src="comment.attachment" :alt="'attachement commentaire de ' + `${comment.User.firstName}`">
+                        <br v-if="comment.attachment" />
+                        <span class="comment_like bold">J'aime</span>
                         <div v-if="index == (post.Comments.length - 1)" class="hide_comments--option" @click="hideComments">Cacher les commentaires</div>
                     </div> 
                 </li>
@@ -81,12 +88,16 @@
 <script>
 import { mapState } from 'vuex'
 import moment from 'moment'
+import Emojis from '@/components/Emojis.vue'
 
 export default {
     name: 'Timeline',
+    components: {
+        Emojis,
+    },
     data () {
         return {
-            commentText: null,
+            commentText: '',
             previewImage: null,
             attachment: null,
             activeComments: null,
@@ -122,7 +133,7 @@ export default {
             if(this.files != undefined || this.files != null) {
                 formData.append('attachment', this.files);
             }
-            if(this.commentText != null) {
+            if(this.commentText != '') {
                 formData.append('text', this.commentText);
             }
             this.$store.dispatch('createComment', {
@@ -144,11 +155,11 @@ export default {
         selectComment (i) {     
             this.activeComments = i;
         },
-        hideComments (){
+        hideComments () {
             this.activeComments = null;
-        },
-        test(comment) {
-            console.log(comment)
+        }, 
+        updateInputComment (inputEmoji) {
+            this.commentText += inputEmoji;
         }
     }
 }
@@ -206,12 +217,12 @@ export default {
     display: flex;
     justify-content: space-between;
 }
-.comments_total, .hide_comments--option {
+.comments_total, .hide_comments--option, .comment_like {
     text-decoration: underline;
     cursor: pointer;
     transition: .3s;
 }
-.comments_total:hover, .hide_comments--option:hover {
+.comments_total:hover, .hide_comments--option:hover, .comment_like:hover {
     color: rgb(255, 57, 57);
 }
 .buttons {
@@ -264,6 +275,9 @@ export default {
     padding-left: 1em;
     padding-top: .5em;
 }
+.emojis_comment {
+    margin-left: .5em;
+}
 .write_comment img, .comment_user_picture img {
     width: 40px;
     height: 40px;
@@ -276,7 +290,7 @@ export default {
   background-color: rgba(194, 194, 194, 0.589);
   color: rgba(0, 0, 0, 0.589);
 }
-.disappear, #comment_file, .hide {
+#comment_file {
     display: none;
 }
 .btn_comment {

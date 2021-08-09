@@ -11,6 +11,7 @@
     "@vuelidate/validators": "^2.0.0-alpha.18",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "emoji-picker-element": "^1.7.0",
     "moment": "^2.29.1",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",

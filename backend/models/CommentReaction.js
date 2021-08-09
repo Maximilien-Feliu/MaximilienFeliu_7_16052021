@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         },
         heart: {
-            type: DataTypes.STRING(7),
+            type: DataTypes.STRING(7), 
             allowNull: true
         },
         angry: {

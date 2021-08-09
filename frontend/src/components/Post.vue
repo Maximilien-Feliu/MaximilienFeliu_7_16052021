@@ -8,15 +8,16 @@
                     <textarea name="post_text" id="post_text" v-model="postText" placeholder="Écrivez ce que vous ressentez actuellement..." @click="growUp"></textarea>
                     <label for="post_file" id="btn_post_file"><i class="fas fa-images"></i>Photo/Video</label>
 
+                    <Emojis class="emojis_post" @append="updateInput"></Emojis>
+
                     <div class="img_option">
-                        <img id="preview_img" :class="{'disappear' : !previewImage}" :src="previewImage" :alt="'Aperçu de l\'image du post de ' + `${userInfos.firstName}`">
-                        <button type="button" id="btn_preview_image" :class="{'disappear' : !previewImage}" @click="cancelImage">Retirer</button>
+                        <img id="preview_img" :class="{'hide' : !previewImage}" :src="previewImage" :alt="'Aperçu de l\'image du post de ' + `${userInfos.firstName}`">
+                        <button type="button" id="btn_preview_image" :class="{'hide' : !previewImage}" @click="cancelImage">Retirer</button>
                     </div>
 
                     <input type="file" name="post_file" id="post_file" accept="image/*" @change="uploadImage">
                     <button type="button" @click="post" id="btn_post">
-                        <span v-if="status == 'loading'">Publication ...</span>
-                        <span v-else>Publier</span>
+                        <span >Publier</span>
                     </button>
                 </div>
             </div>
@@ -26,12 +27,16 @@
 
 <script>
 import {mapState} from 'vuex'
+import Emojis from '@/components/Emojis.vue'
 
 export default {
     name: 'Post',
+    components: {
+        Emojis,
+    },
     data () {
         return {
-            postText: null,
+            postText: '',
             previewImage: null,
             attachment: null,
         }
@@ -61,7 +66,7 @@ export default {
             if(this.files != undefined) {
                 formData.append('attachment', this.files);
             }
-            if(this.postText != null) {
+            if(this.postText != '') {
                 formData.append('text', this.postText);
             }
 
@@ -86,9 +91,14 @@ export default {
         },
         inputShorter(e) {
             const input = document.getElementById('post_text');
-            if(e.target != input) {
+            const emojis = document.getElementsByClassName('emojis_btn')[0];
+            const emojisIcon = document.getElementsByClassName('fa-smile-wink')[0];
+            if(e.target != input && e.target != emojis && e.target != emojisIcon) {
                 input.style.height = '4em';
             }
+        },
+        updateInput (inputEmoji) {
+            this.postText += inputEmoji
         }
     }
 }
@@ -98,7 +108,7 @@ export default {
 .post {
     background-color: white;
     border-radius: 15px;
-    margin-top: 1em;
+    margin-top: 5em;
 }
 .post form {
     display: flex;
@@ -116,6 +126,7 @@ export default {
     align-items: center;
     margin-left: 8.5em;
     margin-top: 1em;
+    position: relative;
 }
 .profile_picture {
     width: 130px;
@@ -164,6 +175,11 @@ textarea:hover {
 i {
     color: rgb(255, 57, 57);
 }
+.emojis_post {
+    position: absolute;
+    bottom: 4.8em;
+    right: -5.5em;
+}
 #btn_post {
     cursor: pointer;
     margin-top: 1em;
@@ -193,7 +209,7 @@ i {
   background-color: rgba(194, 194, 194, 0.589);
   color: rgba(0, 0, 0, 0.589);
 }
-.disappear, #post_file {
+#post_file {
     display: none;
 }
 #btn_preview_image {
