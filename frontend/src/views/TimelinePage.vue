@@ -55,14 +55,12 @@ export default {
 <style scoped>
 Header {
     position: fixed;
-    z-index: 998;
 }
 .complete_timeline_page {
     background: url('../assets/building_background.jpg') fixed no-repeat center;
     background-size: cover;
 }
 .header_search_bar {
-    position: relative;
     position: fixed;
     z-index: 998;
 }

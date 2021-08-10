@@ -21,13 +21,15 @@ export default {
     methods: {
         append (e) {
             this.inputEmoji = e.detail.unicode;
+            
+            
             this.$emit('append', this.inputEmoji);
         }
     }
 }
 </script>
 
-<style scoped>
+<style>
 /******** une classe commençant par "emojis" est créée dans les autres composants pour la mise en page  *********/
 .main_emojis {
     position: relative;
@@ -47,5 +49,6 @@ export default {
 }
 .emojis {
     position: absolute;
+    z-index: 997;
 }
 </style>

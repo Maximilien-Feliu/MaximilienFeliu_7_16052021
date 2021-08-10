@@ -11,7 +11,7 @@ if (!user) {
   user = {
     userId: -1,
     token: '',
-    isAdmin: '',
+    isAdmin: 0,
   };
 } else {
     try {
@@ -21,7 +21,7 @@ if (!user) {
       user = {
         userId: -1,
         token: '',
-        isAdmin: '',
+        isAdmin: 0,
       }
     }
 }
@@ -33,6 +33,7 @@ export default createStore({
     userInfos: {},
     users: [],
     posts: [],
+    postReactions: [],
   },
   mutations: {
     setStatus (state, status) {
@@ -52,6 +53,9 @@ export default createStore({
     allPosts (state, posts) {
       state.posts = posts;
     },
+    allReactions (state, postReactions) {
+      state.postReactions = postReactions;
+    }
   },
   actions: {
     createAccount: ({commit}, userInfos) => {
@@ -222,5 +226,43 @@ export default createStore({
         })
       })
     },
+    createPostReaction: ({commit}, postReaction) => {
+      commit('setStatus', 'loading');
+      return new Promise((resolve, reject) => {
+        instance.post(`/post/${postReaction.postId}/postReaction`, postReaction)
+        .then((response) => {
+          commit('setStatus', 'isLiked');
+          resolve(response);
+        })
+        .catch((error) => {
+            commit('setStatus', 'error_create');
+            reject(error);
+        })
+      })
+    },
+    updatePostReaction: ({commit}, postReaction) => {
+      commit('setStatus', 'loading');
+      return new Promise((resolve, reject) => {
+        instance.put(`/post/${postReaction.postId}/postReaction/${postReaction.id}`, postReaction)
+        .then((response) => {
+          commit('setStatus', 'likeChanged');
+          resolve(response);
+        })
+        .catch((error) => {
+            commit('setStatus', 'error_update');
+            reject(error);
+        })
+      })
+    },
+    deletePostReaction: ({commit}, postReaction) => {
+      commit('setStatus', 'loading');  
+      instance.delete(`/post/${postReaction.postId}/postReaction/${postReaction.id}`)
+      .then(() => {
+        commit('setStatus', 'likeDeleted');
+      })
+      .catch(() => {
+          commit('setStatus', 'error_delete');
+      })
+    }
   }
 })

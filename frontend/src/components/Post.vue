@@ -5,7 +5,7 @@
                 <img class="profile_picture" :src="userInfos.attachment" :alt="'Photo de profil de ' + `${userInfos.firstName}`">
                 <div class="post_area">
                     <label for="post_text" id="whatsup">Quoi de neuf, {{userInfos.firstName}} ?</label>
-                    <textarea name="post_text" id="post_text" v-model="postText" placeholder="Écrivez ce que vous ressentez actuellement..." @click="growUp"></textarea>
+                    <textarea name="post_text" id="post_text" v-model="postText" placeholder="Écrivez quelque chose..." @click="growUp"></textarea>
                     <label for="post_file" id="btn_post_file"><i class="fas fa-images"></i>Photo/Video</label>
 
                     <Emojis class="emojis_post" @append="updateInput"></Emojis>
@@ -87,7 +87,8 @@ export default {
             e.target.style.height = '40em';
             e.target.style.backgroundColor = 'white';
             e.target.style.border = '1px solid grey'; 
-            e.target.style.boxShadow = 'none';        
+            e.target.style.boxShadow = 'none';   
+            e.target.style.cursor = 'inherit';     
         },
         inputShorter(e) {
             const input = document.getElementById('post_text');
@@ -95,6 +96,7 @@ export default {
             const emojisIcon = document.getElementsByClassName('fa-smile-wink')[0];
             if(e.target != input && e.target != emojis && e.target != emojisIcon) {
                 input.style.height = '4em';
+                input.style.cursor = 'pointer';
             }
         },
         updateInput (inputEmoji) {

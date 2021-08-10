@@ -34,7 +34,7 @@ exports.updateComment = (req, res) => {
             }
         })
         .then((comment) => {
-            if (comment.UserId === userId || admin === 1) {
+            if (comment.UserId === userId) {
                 const filename = comment.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
             
                 fs.unlinkSync(`images/${filename}`);
@@ -78,7 +78,7 @@ exports.updateComment = (req, res) => {
                 _id: req.params.id
             }
         }).then((comment) => {
-            if (comment.UserId === userId || admin === 1) {
+            if (comment.UserId === userId) {
                 comment.update(req.body, {
                     where: {
                         _id: req.params.id
@@ -167,7 +167,7 @@ exports.deleteComment = (req, res) => {
                 }
             );
         } else {
-            res.status(400).json({ message: "not allowed to update"});
+            res.status(400).json({ message: "not allowed to delete"});
         }
     }).catch(
         () => {

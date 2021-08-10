@@ -7,13 +7,9 @@ exports.addReaction = (req, res) => {
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
     return models.CommentReaction.create({
-        like: req.body.like,
-        laugh: req.body.laugh,
-        heart: req.body.heart,
-        angry: req.body.angry,
-        applaud: req.body.applaud,
-        userId: userId,
-        commentId: req.params.id
+        reaction: req.body.reaction,
+        UserId: userId,
+        CommentId: req.params.id
     })
     .then(() => res.status(201).json({ message: 'reaction added successfully !'}))
     .catch(error => res.status(400).json({ error }));

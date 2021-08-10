@@ -129,7 +129,15 @@ exports.getAllPosts = (req, res) => {
                 ]
             },
             {
-                model: models.PostReaction
+                model: models.PostReaction,
+                attributes: ['_id', 'reaction', 'UserId'],
+                separate: true,
+                include: [
+                    {
+                        model: models.User,
+                        attributes: ['_id', 'firstName', 'lastName', 'attachment']
+                    }
+                ]
             }
         ],
     })

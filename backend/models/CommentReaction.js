@@ -8,30 +8,12 @@ module.exports = (sequelize, DataTypes) => {
             primaryKey: true,
             autoIncrement: true
         },
-        like: {
-            type: DataTypes.STRING(7),
-            allowNull: true
-        },
-        laugh: {
-            type: DataTypes.STRING(7),
-            allowNull: true
-        },
-        heart: {
-            type: DataTypes.STRING(7), 
-            allowNull: true
-        },
-        angry: {
-            type: DataTypes.STRING(7),
-            allowNull: true
-        },
-        applaud: {
-            type: DataTypes.STRING(7),
-            allowNull: true
-        },
-        cry: {
-            type: DataTypes.STRING(7),
-            allowNull: true
-        }
+        reaction: { 
+            type: DataTypes.TEXT, 
+            allowNull: false
+        }        
+    }, {
+        charset: 'utf8mb4'
     }); 
     CommentReaction.associate = (models) => {
         CommentReaction.belongsTo(models.User, {  

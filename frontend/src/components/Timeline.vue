@@ -1,6 +1,6 @@
 <template>
     <div class="timeline">
-        <li class="post" v-for="(post, i) in posts" :key="post._id">
+        <div class="post" v-for="(post, i) in posts" :key="post._id">
             <div class="infos_user_post">
                 <img :src="post.User.attachment" :alt="'Photo de profil de ' + `${post.User.firstName}`" class="user_profile_picture" />
                 <div class="infos_user_date">
@@ -20,28 +20,28 @@
             </div>
 
             <div class="buttons">
-                <button class="btn_post_react" type="button">
-                    <i class="far fa-heart"></i>
-                    Réagir
-                </button> 
-                <label for="input_comment" id="label_comment" class="btn_post_react" >
+                <Reactions @sendReaction="newReact" @change="likePost(post, userInfos._id)"></Reactions>
+                
+                <label :for="'input_comment'+[i]" class="btn_post_react label_comment" >
                     <i class="far fa-comments"></i>
                     Commenter
                 </label>
-                <button class="btn_post_react" id="btn_share" type="button">
+                <button class="btn_post_react btn_share" type="button">
                     <i class="far fa-share-square"></i>
                     Partager
                 </button>
             </div>
 
+        <!-- Comment Section -->
+
             <div class="comment_section">
                 <div class="write_comment">
                     <img :src="userInfos.attachment" :alt="'photo de profil de ' + `${userInfos.firstName}`">
-                    <input type="text" v-model="commentText" class="input_comment" name="input_comment" placeholder="Écrivez un commentraire...">
-                    <label for="comment_file" id="btn_comment_file"><i class="fas fa-images"></i></label>
-                    <input type="file" name="comment_file" id="comment_file" accept="image/*" @change="uploadImage">
+                    <input type="text" v-model="commentText[i]" :id="'input_comment'+[i]" class="input_comment" name="input_comment" placeholder="Écrivez un commentraire...">
+                    <label :for="'comment_file'+[i]"><i class="fas fa-images btn_comment_file"></i></label>
+                    <input type="file" name="comment_file" class="hide" :id="'comment_file'+[i]" accept="image/*" @change="uploadImage">
                     
-                    <Emojis class="emojis_comment" @append="updateInputComment"></Emojis>
+                    <Emojis @append="updateInputComment"></Emojis>
 
                     <button class="btn_comment" type="button" @click="comment(post._id)">Commenter</button>
                 </div>
@@ -65,7 +65,7 @@
                     </div>
                 </div>
 
-                <li class="hide" :class="{'show_comments' : i === activeComments && index > 0}" v-for="(comment, index) in post.Comments" :key="comment._id">  
+                <div class="hide" :class="{'show_comments' : i === activeComments && index > 0}" v-for="(comment, index) in post.Comments" :key="comment._id">  
                     <div class="comment_user_picture">
                         <img :src="comment.User.attachment" :alt="'Photo de profil de ' + `${comment.User.firstName}`">
                     </div>
@@ -79,9 +79,9 @@
                         <span class="comment_like bold">J'aime</span>
                         <div v-if="index == (post.Comments.length - 1)" class="hide_comments--option" @click="hideComments">Cacher les commentaires</div>
                     </div> 
-                </li>
+                </div>
             </div>      
-        </li>
+        </div>
     </div>
 </template>
 
@@ -89,18 +89,21 @@
 import { mapState } from 'vuex'
 import moment from 'moment'
 import Emojis from '@/components/Emojis.vue'
+import Reactions from '@/components/Reactions.vue'
 
 export default {
     name: 'Timeline',
     components: {
         Emojis,
+        Reactions
     },
     data () {
         return {
-            commentText: '',
+            commentText: [''],
             previewImage: null,
             attachment: null,
             activeComments: null,
+            reactions: '',
         }
     },
     mounted: function () {
@@ -126,6 +129,9 @@ export default {
         cancelImage () {
             this.previewImage = null;
             this.files = null;
+        },
+        focusinput () {
+            this.$ref.inputComment.focus();
         },
         comment (postId) {
             const formData = new FormData();
@@ -160,6 +166,48 @@ export default {
         }, 
         updateInputComment (inputEmoji) {
             this.commentText += inputEmoji;
+            console.log(this.commentText)
+        },
+        newReact (react) {
+            this.reactions = react;          
+        },
+        likePost (post, userId) {
+            let userReaction = post.PostReactions.map((i) => i.UserId);
+            
+            if (userReaction.includes(userId)) {
+
+                let indexOfUser = userReaction.indexOf(userId);
+                let findReaction = post.PostReactions.map((i) => i.reaction);
+                let reaction = findReaction[indexOfUser];
+                let findReactionId = post.PostReactions.map((i) => i._id);
+                let reactionId = findReactionId[indexOfUser];
+
+                if(reaction == this.reactions) {
+                    this.$store.dispatch('deletePostReaction', {
+                        postId: post._id,
+                        id: reactionId
+                    })
+
+                } else {
+                    this.$store.dispatch('updatePostReaction', {
+                        postId: post._id,
+                        id: reactionId,
+                        reaction: this.reactions
+                    })
+                    .then(() => {
+                        console.log(this.$store.state.status)
+                    })      
+                }
+            } else {
+                const self = this;
+                this.$store.dispatch('createPostReaction', {
+                    reaction: self.reactions,
+                    postId: post._id
+                })
+                .then(() => {
+                    console.log(this.$store.state.status)
+                })
+            }
         }
     }
 }
@@ -228,6 +276,7 @@ export default {
 .buttons {
     width: 100%;
     display: flex;
+    position: relative;
 }
 .btn_post_react {
     cursor: pointer;
@@ -243,16 +292,16 @@ export default {
     background-color: rgba(8, 8, 58, 0.856);
     color: white;
 }
-#label_comment {
+.label_comment {
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: smaller;
 }
-#label_comment i {
+.label_comment i {
     margin-right: 5px;
 }
-#btn_share {
+.btn_share {
     border-right: none;
 }
 .comment_section {
@@ -285,14 +334,6 @@ export default {
     border-radius: 50%;
     margin-right: 1em;
 }
-.button--disabled {
-  pointer-events: none;
-  background-color: rgba(194, 194, 194, 0.589);
-  color: rgba(0, 0, 0, 0.589);
-}
-#comment_file {
-    display: none;
-}
 .btn_comment {
     margin-left: .5em;
     cursor: pointer;
@@ -305,12 +346,12 @@ export default {
 .btn_comment:hover {
     background-color: rgba(8, 8, 58, 0.534); 
 }
-#btn_comment_file {
+.btn_comment_file {
     color: rgb(255, 57, 57);
     margin-left: .5em;
     cursor: pointer;
 }
-#btn_comment_file i:hover {
+.btn_comment_file i:hover {
     font-size: 1.5em;
 }
 .img_option {
