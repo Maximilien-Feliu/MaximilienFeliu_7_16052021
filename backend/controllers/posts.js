@@ -46,7 +46,7 @@ exports.updatePost = (req, res) => {
                 }
                 
                 post.update(postObject, {
-                    where: {
+                    where: { 
                         _id: req.params.id
                     }
                 }
@@ -63,7 +63,10 @@ exports.updatePost = (req, res) => {
                     }
                 )
             } else {
-                res.status(400).json({ message: "not allowed to update"})
+                const filename = req.file.filename;                             
+                fs.unlinkSync(`images/${filename}`);
+
+                res.status(403).json({ message: "not allowed to update"})
             }
         })
         .catch(

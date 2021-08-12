@@ -194,6 +194,41 @@ export default createStore({
         })
       })
     },
+    updatePost: ({commit}, updateInfos) => {
+      commit('SET_STATUS', 'loading');
+      return new Promise((resolve, reject) => {
+        instance.put(`/post/${updateInfos.id}`, updateInfos.formData) 
+        .then((response) => {
+          commit('SET_STATUS', 'post_updated');
+          resolve(response);
+        })
+        .catch((error) => {
+          if (error.response.status === 403) {
+            commit('SET_STATUS', 'not_allowed_to_update');
+            reject(error);
+
+          } else if (error.response.status === 401) {
+            commit('SET_STATUS', 'error_update_regex');
+            reject(error);
+
+          } else {
+            commit('SET_STATUS', 'error_update'); 
+            reject(error);
+          }
+        });
+      });  
+    },
+    deletePost: ({commit}, postInfos) => {
+      commit('SET_STATUS', 'loading');  
+      instance.delete(`/post/${postInfos.id}`)
+      .then(() => {
+        commit('SET_STATUS', 'post_deleted');
+        console.log(state.status);
+      })
+      .catch(() => {
+          commit('SET_STATUS', 'error_delete');
+      })
+    },
     getAllPosts: ({commit}) => {
       commit('SET_STATUS', 'loading');
       instance.get('/post/')
@@ -210,7 +245,7 @@ export default createStore({
       return new Promise((resolve, reject) => {
         instance.post(`/post/${commentInfos.postId}/comment`, commentInfos.formData)
         .then((response) => {
-          commit('SET_STATUS', 'commentCreated');
+          commit('SET_STATUS', 'comment_created');
           resolve(response);
         })
         .catch((error) => {
@@ -248,7 +283,7 @@ export default createStore({
           reaction: postReaction.reaction
         })
         .then((response) => {
-          commit('SET_STATUS', 'likeUpdated');
+          commit('SET_STATUS', 'like_updated');
           resolve(response);
         })
         .catch((error) => {
@@ -261,7 +296,7 @@ export default createStore({
       commit('SET_STATUS', 'loading');  
       instance.delete(`/post/${postReaction.postId}/postReaction/${postReaction.id}`)
       .then(() => {
-        commit('SET_STATUS', 'likeDeleted');
+        commit('SET_STATUS', 'like_deleted');
       })
       .catch(() => {
           commit('SET_STATUS', 'error_delete');
@@ -274,7 +309,7 @@ export default createStore({
           reaction: commentReaction.reaction
         })
         .then((response) => {
-          commit('SET_STATUS', 'isLiked');
+          commit('SET_STATUS', 'is_liked');
           resolve(response);
         })
         .catch((error) => {

@@ -12,7 +12,7 @@
 
                     <div class="img_option">
                         <img id="preview_img" :class="{'hide' : !previewImage}" :src="previewImage" :alt="'Aperçu de l\'image du post de ' + `${userInfos.firstName}`">
-                        <button type="button" id="btn_preview_image" :class="{'hide' : !previewImage}" @click="cancelImage">Retirer</button>
+                        <button type="button" id="btn_preview_image" :class="{'hide' : !previewImage}" @click="previewImage = !previewImage">Retirer</button>
                     </div>
 
                     <input type="file" name="post_file" id="post_file" accept="image/*" @change="uploadImage">
@@ -55,10 +55,6 @@ export default {
         uploadImage(e){
             this.files = e.target.files[0];
             this.previewImage = URL.createObjectURL(this.files);
-        },
-        cancelImage () {
-            this.previewImage = null;
-            this.files = null;
         },
         post() {
             const formData = new FormData();

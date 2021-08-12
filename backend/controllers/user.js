@@ -114,9 +114,9 @@ exports.updateUser = (req, res) => {
         .catch(
             error => {
                 res.status(500).json({
-                    error
+                    message: 'ça vient de là'
                 });
-            }
+            } 
         )
     ) : (
         models.User.findOne({
@@ -173,7 +173,16 @@ exports.getOneUser = (req, res) => {
         }
     }).then(
         user => {                                     
-            res.status(200).json(user);
+            res.status(200).json({
+                _id: user._id,
+                isAdmin: user.isAdmin,
+                attachment: user.attachment,
+                bio: user.bio,
+                department: user.department,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                createdAt: user.createdAt
+            });
         }
     ).catch(
         error => {

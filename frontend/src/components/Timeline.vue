@@ -1,12 +1,15 @@
 <template>
     <div class="timeline">
         <div class="post" v-for="(post, i) in posts" :key="i">
+            
+            <HandlePost :user="userInfos" :postToHandle="posts[i]" :postIndex="i"></HandlePost>
+            
             <div class="infos_user_post">
                 <img :src="post.User.attachment" :alt="'Photo de profil de ' + `${post.User.firstName}`" class="user_profile_picture" />
                 <div class="infos_user_date">
                     <span class="infos_user_name">{{post.User.firstName}} {{post.User.lastName}}</span>
                     <br />
-                    <span class="created_at">{{moment(post.createdAt)}}</span>
+                    <span class="created_at">{{ moment(post.createdAt) }}</span>
                 </div>
             </div>
 
@@ -14,12 +17,12 @@
                 <p class="post_text">{{post.text}}</p>
                 <img v-if="post.attachment" class="img_post" :src="post.attachment" :alt="'attachement relié à la publication de ' + `${post.User.firstName}`">
             </div>
+
+        <!-- reactions for posts -->
             <div class="post_reactions_info">
                 <div class="reaction_total">{{post.PostReactions.length}} Reactions</div>
                 <div class="comments_total" @click="selectComment(i)">{{post.Comments.length}} Commentaires</div>
             </div>
-
-        <!-- reactions for posts -->
 
             <div class="buttons">
                 <Reactions :likeName="'post'" :userId="userInfos._id" :postId="posts[i]._id" :postIndex="i" :objectIndex="i" :reactions="posts[i].PostReactions" :handleReaction="handlePostReaction"></Reactions>
@@ -101,12 +104,14 @@ import { mapState } from 'vuex'
 import moment from 'moment'
 import Emojis from '@/components/Emojis.vue'
 import Reactions from '@/components/Reactions.vue'
+import HandlePost from '@/components/HandlePost.vue'
 
 export default {
     name: 'Timeline',
     components: {
         Emojis,
-        Reactions
+        Reactions,
+        HandlePost
     },
     data () {
         return {
@@ -194,7 +199,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .timeline {
     margin-top: 1em;
     border-radius: 15px;
@@ -208,6 +213,7 @@ export default {
     width: 100%;
     border-radius: 15px;
     margin-bottom: 1em;
+    position: relative;
 }
 .infos_user_post {
     margin-top: 1em;
