@@ -124,7 +124,15 @@ exports.getAllPosts = (req, res) => {
                         attributes: ['_id', 'firstName', 'lastName', 'attachment']
                     },
                     {
-                        model: models.CommentReaction
+                        model: models.CommentReaction,
+                        attributes: ['_id', 'reaction', 'UserId'],
+                        separate: true,
+                        include: [
+                        { 
+                            model: models.User,
+                            attributes: ['_id', 'firstName', 'lastName', 'attachment']
+                        }
+                ]
                     }
                 ]
             },

@@ -9,7 +9,6 @@
 
 <script>
 import 'emoji-picker-element' 
-
 export default {
     name: 'Emojis',
     data () {
@@ -18,12 +17,19 @@ export default {
             emojis: false
         }
     },
+    props: {
+        inputIndex: {
+            type: Number
+        }
+    },
     methods: {
         append (e) {
-            this.inputEmoji = e.detail.unicode;
-            
-            
+            this.inputEmoji = e.detail.unicode; 
+            this.emojis = !this.emojis;
             this.$emit('append', this.inputEmoji);
+            /*let input = document.getElementById('input_comment' + this.inputIndex).value;
+            input += ' '+e.detail.unicode;
+            console.log(input)*/
         }
     }
 }

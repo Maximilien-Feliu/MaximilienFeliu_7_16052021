@@ -16,7 +16,7 @@
                     </div>
 
                     <input type="file" name="post_file" id="post_file" accept="image/*" @change="uploadImage">
-                    <button type="button" @click="post" id="btn_post">
+                    <button type="submit" @click.prevent="post" id="btn_post">
                         <span >Publier</span>
                     </button>
                 </div>
@@ -65,7 +65,7 @@ export default {
 
             if(this.files != undefined) {
                 formData.append('attachment', this.files);
-            }
+            } 
             if(this.postText != '') {
                 formData.append('text', this.postText);
             }

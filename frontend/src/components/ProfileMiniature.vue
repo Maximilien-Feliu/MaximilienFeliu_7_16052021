@@ -46,7 +46,7 @@ export default {
 
 <style scoped>
 .profile_miniature {
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.842);
     height: 30em;
     width: 23%;
     right: 1em;
@@ -57,6 +57,14 @@ export default {
     align-items: center;
     position: fixed;
     z-index: 999;
+    box-shadow: inset 1px 1px 6px rgba(0, 0, 0, 0.459),
+                inset -1px -1px 6px rgba(0, 0, 0, 0.459),
+                -1px 1px rgb(206, 206, 206);
+    transition: .3s;
+}
+.profile_miniature:hover {
+    background-color: white;
+    box-shadow: inherit;
 }
 .img_border {
     display: flex;

@@ -22,7 +22,7 @@ exports.updateReaction = (req, res) => {
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
     models.PostReaction.findOne({
-        where : {
+        where : { 
             _id: req.params.id
         }
     })

@@ -25,7 +25,7 @@
                 
                 <div class="submit_choice">
                     <button class="btn_complete" type="button" @click="completeProfile">Valider les changements</button>
-                    <router-link to="/">Plus tard</router-link>
+                    <router-link to="/" @click="firstLog">Plus tard</router-link>
                 </div>
     
             </div>
@@ -49,15 +49,25 @@ export default {
         return {
             previewImage: null,
             attachment: 'http://localhost:3000/images/profile_default.jpg',
-            bio: null
+            bio: null,
         }
     },
     mounted: function () { 
-        if (this.$store.state.user.userId == -1) {
-            this.$router.push('/home');
-            return;
-        }
         this.$store.dispatch('getUserInfos');
+
+        let firstLog = localStorage.getItem('1STLOG');
+        firstLog = JSON.parse(firstLog);
+        if(firstLog === false) {
+            this.$router.push('/');
+        } else {
+            setTimeout(() => {       
+                    if(!window.location.hash) {
+                        window.location = window.location + '#loaded';
+                        window.location.reload();
+                    }     
+            }, 200);
+        }
+        
     },
     computed: {
         ...mapState({
@@ -67,6 +77,9 @@ export default {
         })
     },
     methods: {
+        firstLog () {
+            localStorage.setItem('1STLOG', false);
+        },
         uploadImage(e){
             this.files = e.target.files[0];
             this.previewImage = URL.createObjectURL(this.files);
@@ -83,6 +96,7 @@ export default {
 
             this.$store.dispatch('updateProfile', formData) 
             .then(() => {
+                this.firstLog();
                 this.$router.push('/'); 
             })
             .catch(() => {

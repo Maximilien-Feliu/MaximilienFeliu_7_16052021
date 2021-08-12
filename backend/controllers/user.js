@@ -50,7 +50,7 @@ exports.login = (req, res) => {
                         isAdmin: user.isAdmin
                     },
                     process.env.SECRET_TOKEN,   
-                    { expiresIn: '24h' }
+                    { expiresIn: '5d' }
                 )
             });
         })

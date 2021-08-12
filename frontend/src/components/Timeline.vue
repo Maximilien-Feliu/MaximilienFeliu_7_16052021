@@ -1,6 +1,6 @@
 <template>
     <div class="timeline">
-        <div class="post" v-for="(post, i) in posts" :key="post._id">
+        <div class="post" v-for="(post, i) in posts" :key="i">
             <div class="infos_user_post">
                 <img :src="post.User.attachment" :alt="'Photo de profil de ' + `${post.User.firstName}`" class="user_profile_picture" />
                 <div class="infos_user_date">
@@ -19,8 +19,10 @@
                 <div class="comments_total" @click="selectComment(i)">{{post.Comments.length}} Commentaires</div>
             </div>
 
+        <!-- reactions for posts -->
+
             <div class="buttons">
-                <Reactions @sendReaction="newReact" @change="likePost(post, userInfos._id)"></Reactions>
+                <Reactions :likeName="'post'" :userId="userInfos._id" :postId="posts[i]._id" :postIndex="i" :objectIndex="i" :reactions="posts[i].PostReactions" :handleReaction="handlePostReaction"></Reactions>
                 
                 <label :for="'input_comment'+[i]" class="btn_post_react label_comment" >
                     <i class="far fa-comments"></i>
@@ -37,11 +39,11 @@
             <div class="comment_section">
                 <div class="write_comment">
                     <img :src="userInfos.attachment" :alt="'photo de profil de ' + `${userInfos.firstName}`">
-                    <input type="text" v-model="commentText[i]" :id="'input_comment'+[i]" class="input_comment" name="input_comment" placeholder="Écrivez un commentraire...">
+                    <input type="text" :id="'input_comment'+[i]" v-model="commentText[i]" class="input_comment" name="input_comment" placeholder="Écrivez un commentraire...">
                     <label :for="'comment_file'+[i]"><i class="fas fa-images btn_comment_file"></i></label>
                     <input type="file" name="comment_file" class="hide" :id="'comment_file'+[i]" accept="image/*" @change="uploadImage">
                     
-                    <Emojis @append="updateInputComment"></Emojis>
+                    <Emojis @append="updateInputComment" :inputIndex="i"></Emojis>
 
                     <button class="btn_comment" type="button" @click="comment(post._id)">Commenter</button>
                 </div>
@@ -55,13 +57,17 @@
                         <img :src="post.Comments[0].User.attachment" :alt="'Photo de profil de ' + `${post.Comments[0].User.firstName}`">
                     </div>
                     <div class="comment_content">
+                        <div class="comment_reactions_length" v-if="post.Comments[0].CommentReactions">{{ post.Comments[0].CommentReactions.length }} 
+                            <span class="comment_reactions_length1">❤️</span><span class="comment_reactions_length2">😂</span><span class="comment_reactions_length3">👏</span><span class="comment_reactions_length4">😢</span><span class="comment_reactions_length5">😡</span>
+                        </div>
                         <div class="comment_bubble">
                             <span class="comment_username bold">{{post.Comments[0].User.firstName}} {{post.Comments[0].User.lastName}}</span>
                             <p class="comment_text">{{post.Comments[0].text}}</p>
                         </div>
                         <img v-if="post.Comments[0].attachment" :src="post.Comments[0].attachment" :alt="'attachement commentaire de ' + `${post.Comments[0].User.firstName}`">
                         <br v-if="post.Comments[0].attachment" />
-                        <span class="comment_like bold">J'aime</span>
+
+                        <Reactions :likeName="'lastcomment'" :userId="userInfos._id" :postId="posts[i]._id" :commentId="posts[i].Comments[0]._id" :postIndex="i" :objectIndex="0" :reactions="posts[i].Comments[0].CommentReactions" :handleReaction="handleCommentReaction"></Reactions>
                     </div>
                 </div>
 
@@ -70,13 +76,18 @@
                         <img :src="comment.User.attachment" :alt="'Photo de profil de ' + `${comment.User.firstName}`">
                     </div>
                     <div class="comment_content">
+                        <div class="comment_reactions_length" v-if="post.Comments[index].CommentReactions">{{ post.Comments[index].CommentReactions.length }} 
+                            <span class="comment_reactions_length1">❤️</span><span class="comment_reactions_length2">😂</span><span class="comment_reactions_length3">👏</span><span class="comment_reactions_length4">😢</span><span class="comment_reactions_length5">😡</span>
+                        </div>
                         <div class="comment_bubble">
                             <span class="comment_username bold">{{comment.User.firstName}} {{comment.User.lastName}}</span>
                             <p class="comment_text">{{comment.text}}</p>
                         </div>
                         <img v-if="comment.attachment" :src="comment.attachment" :alt="'attachement commentaire de ' + `${comment.User.firstName}`">
                         <br v-if="comment.attachment" />
-                        <span class="comment_like bold">J'aime</span>
+
+                        <Reactions :likeName="'comments'" :userId="userInfos._id" :postId="posts[i]._id" :commentId="posts[i].Comments[index]._id" :postIndex="i" :objectIndex="index" :reactions="posts[i].Comments[index].CommentReactions" :handleReaction="handleCommentReaction"></Reactions>
+                        
                         <div v-if="index == (post.Comments.length - 1)" class="hide_comments--option" @click="hideComments">Cacher les commentaires</div>
                     </div> 
                 </div>
@@ -103,7 +114,16 @@ export default {
             previewImage: null,
             attachment: null,
             activeComments: null,
-            reactions: '',
+            handlePostReaction: {
+                add: 'createPostReaction',
+                update: 'updatePostReaction',
+                delete: 'deletePostReaction'
+            },
+            handleCommentReaction: {
+                add: 'createCommentReaction',
+                update: 'updateCommentReaction',
+                delete: 'deleteCommentReaction'
+            },
         }
     },
     mounted: function () {
@@ -134,6 +154,7 @@ export default {
             this.$ref.inputComment.focus();
         },
         comment (postId) {
+            
             const formData = new FormData();
 
             if(this.files != undefined || this.files != null) {
@@ -165,50 +186,10 @@ export default {
             this.activeComments = null;
         }, 
         updateInputComment (inputEmoji) {
+            document.getElementById(i)
             this.commentText += inputEmoji;
             console.log(this.commentText)
         },
-        newReact (react) {
-            this.reactions = react;          
-        },
-        likePost (post, userId) {
-            let userReaction = post.PostReactions.map((i) => i.UserId);
-            
-            if (userReaction.includes(userId)) {
-
-                let indexOfUser = userReaction.indexOf(userId);
-                let findReaction = post.PostReactions.map((i) => i.reaction);
-                let reaction = findReaction[indexOfUser];
-                let findReactionId = post.PostReactions.map((i) => i._id);
-                let reactionId = findReactionId[indexOfUser];
-
-                if(reaction == this.reactions) {
-                    this.$store.dispatch('deletePostReaction', {
-                        postId: post._id,
-                        id: reactionId
-                    })
-
-                } else {
-                    this.$store.dispatch('updatePostReaction', {
-                        postId: post._id,
-                        id: reactionId,
-                        reaction: this.reactions
-                    })
-                    .then(() => {
-                        console.log(this.$store.state.status)
-                    })      
-                }
-            } else {
-                const self = this;
-                this.$store.dispatch('createPostReaction', {
-                    reaction: self.reactions,
-                    postId: post._id
-                })
-                .then(() => {
-                    console.log(this.$store.state.status)
-                })
-            }
-        }
     }
 }
 </script>
@@ -265,12 +246,12 @@ export default {
     display: flex;
     justify-content: space-between;
 }
-.comments_total, .hide_comments--option, .comment_like {
+.comments_total, .hide_comments--option {
     text-decoration: underline;
     cursor: pointer;
     transition: .3s;
 }
-.comments_total:hover, .hide_comments--option:hover, .comment_like:hover {
+.comments_total:hover, .hide_comments--option:hover {
     color: rgb(255, 57, 57);
 }
 .buttons {
@@ -379,6 +360,7 @@ export default {
     background-color: rgba(8, 8, 58, 0.534); 
 }
 .last_comment, .show_comments {
+    position: relative;
     display: flex;
     margin-left: 2.5em;
     margin-bottom: 2em;
@@ -427,4 +409,38 @@ export default {
     margin-top: 2em;
     font-size: larger;
 }
+.comment_reactions_length {
+    position: relative;
+    font-weight: bold;
+    padding-left: 5px;
+    border-radius: 15px;
+    font-size: smaller;
+    width: 80%;
+}
+.comment_reactions_length1 {
+    position: absolute;
+    left: 20px;
+    z-index: 50;
+}
+.comment_reactions_length2 {
+    position: absolute;
+    left: 30px;
+    z-index: 40;
+}
+.comment_reactions_length3 {
+    position: absolute;
+    left: 40px;
+    z-index: 30;
+}
+.comment_reactions_length4 {
+    position: absolute;
+    left: 50px;
+    z-index: 20;
+}
+.comment_reactions_length5 {
+    position: absolute;
+    left: 60px;
+    z-index: 10;
+}
+
 </style>

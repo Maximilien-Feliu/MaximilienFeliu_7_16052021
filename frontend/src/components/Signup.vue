@@ -6,45 +6,45 @@
         <form action="#" id="signup_form">
 
           <label for="signup_email">Votre <span class="bold">Email</span>* : </label>
-          <div class="input_error_container">
+          <div class="input_error_container_signup">
             <input v-model="state.email" type="email" id="signup_email" maxlength="255" required>
-            <div class="input_error" v-if="v$.email.$error" >{{ v$.email.$errors[0].$message }}</div>
-            <div class="input_error" v-else-if="status == 'error_email'" >Cet email existe déjà.</div>
+            <div class="input_error_signup" v-if="v$.email.$error" >{{ v$.email.$errors[0].$message }}</div>
+            <div class="input_error_signup" v-else-if="status == 'error_email'" >Cet email existe déjà.</div>
           </div>
 
           <label for="signup_password">Votre <span class="bold">mot de passe</span> (6 caractères minimum)* :</label>
-          <div class="input_error_container">
-            <input v-model="state.password.password" type="password" id="signup_password" minlength="6" maxlength="255" required>
-            <div class="input_error" v-if="v$.password.password.$error" >{{ v$.password.password.$errors[0].$message }}</div>
+          <div class="input_error_container_signup">
+            <input v-model="state.password.password" type="password" id="signup_password" minlength="6" maxlength="255" autocomplete="on" required>
+            <div class="input_error_signup" v-if="v$.password.password.$error" >{{ v$.password.password.$errors[0].$message }}</div>
           </div>
 
           <label for="signup_password_confirm">Confirmez votre <span class="bold">mot de passe</span>* :</label> 
-          <div class="input_error_container">
-            <input v-model="state.password.confirm" type="password" id="signup_password_confirm" maxlength="255" required>
-            <div class="input_error" v-if="v$.password.confirm.$error" >{{ v$.password.confirm.$errors[0].$message }}</div>
+          <div class="input_error_container_signup">
+            <input v-model="state.password.confirm" type="password" id="signup_password_confirm" maxlength="255" autocomplete="on" required>
+            <div class="input_error_signup" v-if="v$.password.confirm.$error" >{{ v$.password.confirm.$errors[0].$message }}</div>
           </div>
 
           <label for="signup_firstName">Votre <span class="bold">Prénom</span>* :</label>
-          <div class="input_error_container">
+          <div class="input_error_container_signup">
             <input v-model="state.firstName" type="text" id="signup_firstName" maxlength="75" required>
-            <div class="input_error" v-if="v$.firstName.$error" >{{ v$.firstName.$errors[0].$message }}</div>
+            <div class="input_error_signup" v-if="v$.firstName.$error" >{{ v$.firstName.$errors[0].$message }}</div>
           </div>
 
           <label for="signup_lastName">Votre <span class="bold">Nom</span>* :</label>
-          <div class="input_error_container">
+          <div class="input_error_container_signup">
             <input v-model="state.lastName" type="text" id="signup_lastName" maxlength="75" required>
-            <div class="input_error" v-if="v$.lastName.$error" >{{ v$.lastName.$errors[0].$message }}</div>
+            <div class="input_error_signup" v-if="v$.lastName.$error" >{{ v$.lastName.$errors[0].$message }}</div>
           </div>
 
           <label for="signup_department">Le <span class="bold">département</span> dans lequel vous travaillez* :</label>
-          <div class="input_error_container">
+          <div class="input_error_container_signup">
             <input v-model="state.department" type="text" id="signup_department" maxlength="255" required>
-            <div class="input_error" v-if="v$.department.$error" >{{ v$.department.$errors[0].$message }}</div>
+            <div class="input_error_signup" v-if="v$.department.$error" >{{ v$.department.$errors[0].$message }}</div>
           </div>
 
-          <div class="input_error" v-if="status == 'error_regex'" >Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !</div>
+          <div class="input_error_signup" v-if="status == 'error_regex'" >Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !</div>
           <div class="button_info">
-            <button @click="createAccount" type="button" :class="{'button--disabled' : !validatedFields}" >
+            <button @click.prevent="createAccount" type="submit" :class="{'button--disabled' : !validatedFields}" >
               <span class="bold" v-if="status == 'loading'">Inscription...</span>
               <span class="bold" v-else>S'inscrire</span>
             </button> 
@@ -123,42 +123,46 @@ export default {
     }, 
     methods: {
         createAccount () {
-            this.v$.$validate();
-            if (!this.v$.$error) {
-                this.$store.dispatch('createAccount', {
-                    email: this.state.email,
-                    password: this.state.password.password,
-                    firstName: this.state.firstName,
-                    lastName: this.state.lastName,
-                    department: this.state.department
+          localStorage.setItem('1STLOG', true);
+
+          this.v$.$validate();
+          if (!this.v$.$error) {
+              this.$store.dispatch('createAccount', {
+                  email: this.state.email,
+                  password: this.state.password.password,
+                  firstName: this.state.firstName,
+                  lastName: this.state.lastName,
+                  department: this.state.department
+              }).then(() => {
+                console.log(this.$store.state.status);
+                this.$store.dispatch('login', {
+                  email: this.state.email,
+                  password: this.state.password.password
+
                 }).then(() => {
-                  this.$store.dispatch('login', {
-                    email: this.state.email,
-                    password: this.state.password.password
-
-                  }).then(async() => {
-                    await this.$router.push('/completeProfile');
-
-                  }).catch(() => {
-                    this.$router.push('/:pathMatch(.*)');
-                  })
+                  setTimeout(() => {
+                    this.$router.push('/completeProfile');
+                  }, 1000)
                 }).catch(() => {
-                  if (this.status == 'error_email') {
-                    alert('Cet email existe déjà.');
-
-                  } else if (this.status == 'error_too_many') {
-                    alert('Désolé, vous avez créé trop de comptes. Veuillez réessayer dans 24h.')
-                    
-                  } else if (this.status == 'error_regex') {
-                    alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !')
-
-                  } else {
-                    this.$router.push('/:pathMatch(.*)');
-                  }
+                  this.$router.push('/:pathMatch(.*)');
                 })
-            } else {
-                alert('veuillez renseigner les champs correctement.')
-            }
+              }).catch(() => {
+                if (this.status == 'error_email') {
+                  alert('Cet email existe déjà.');
+
+                } else if (this.status == 'error_too_many') {
+                  alert('Désolé, vous avez créé trop de comptes. Veuillez réessayer dans 24h.')
+                  
+                } else if (this.status == 'error_regex') {
+                  alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !')
+
+                } else {
+                  this.$router.push('/:pathMatch(.*)');
+                }
+              })
+          } else {
+              alert('veuillez renseigner les champs correctement.')
+          }
         }
     }
 }
@@ -203,11 +207,11 @@ input {
   margin-top: 0.5em;
   width: 30%;
 }
-.input_error_container {
+.input_error_container_signup {
     display: flex;
     align-items: center;
 }
-.input_error {
+.input_error_signup {
     margin-left: 1em;
     margin-bottom: .5em;
     color: rgb(255, 57, 57);

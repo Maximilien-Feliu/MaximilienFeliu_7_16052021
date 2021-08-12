@@ -5,7 +5,7 @@ const multer = require('../middleware/multer-config');              // import th
 const auth = require('../middleware/auth.js');
 const regExp = require('../middleware/regExp');                                 // import regExp
 
-const router = express.Router();
+const router = express.Router();      
 
 router.get('/:id/comment', auth, commentCtrl.getAllComments);
 router.post('/:id/comment', auth, regExp.postOrComment, multer, commentCtrl.createComment);

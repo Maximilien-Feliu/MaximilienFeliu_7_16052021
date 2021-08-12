@@ -1,6 +1,8 @@
 <template>
   <div class="login_page">
+
     <Header />
+
     <div class="login_main_container">
       <div class="login_main">    
         <div class="login_form_warning">
@@ -9,23 +11,9 @@
             Email et/ou mot de passe invalide.
             <br />Attention ! Vous n'avez le droit qu'à 5 tentatives...
           </p>
-          <form id="login_page_form">
-            <div class="input_error_container">
-              <input type="email" v-model="state.email" id="login_page_email" maxlength="255" placeholder="Adresse mail" required>
-              <div class="input_error" v-if="v$.email.$error">{{ v$.email.$errors[0].$message }}</div>
-            </div>
 
-            <div class="input_error_container">
-              <input type="password" v-model="state.password" id="login_page_password" maxlength="255" placeholder="Mot de passe" required>
-              <div class="input_error" v-if="v$.password.$error">{{ v$.password.$errors[0].$message }}</div>
-            </div>
+          <LoginComponent id="login_page_form" />
 
-            <button type="button" @click="login" :class="{'button--disabled' : !validatedFields}">
-              <span class="bold" v-if="status == 'loading'">Connection ...</span>
-              <span class="bold" v-else>Se connecter</span>
-            </button>
-
-          </form>
         </div>
         <p>Vous n'avez pas encore de compte ? <router-link to="/">S'inscrire</router-link></p>
       </div>
@@ -36,9 +24,7 @@
 </template>
 
 <script>
-import useVuelidate from '@vuelidate/core'
-import { required, email } from '@vuelidate/validators'
-import { reactive, computed } from 'vue'
+import LoginComponent from '@/components/LoginComponent.vue'
 import { mapState } from 'vuex'
 import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
@@ -48,75 +34,25 @@ export default {
     components: {
       Header,
       Footer,
+      LoginComponent
     },
-    setup () { 
-        const state = reactive({
-            email: '',
-            password: '',
-        })
-        const rules = computed (() => {
-            return {
-                email: {
-                    required,
-                    email
-                },
-                password: {
-                    required,
-                },
-            }
-        })
-        const v$ = useVuelidate(rules, state);
-        return {
-            state,
-            v$
-        }
+    mounted: function () { 
+      if (this.$store.state.user.userId != -1) {
+        this.$router.push('/');
+        return;
+      }
     },
     computed: {
-        validatedFields () {
-            if (this.state.email != "" && this.state.password != "") {
-                return true;
-            } else {
-                return false;
-            }
-        },
-        ...mapState(['status'])
-    }, 
-    methods: {
-        login () {
-            this.v$.$validate();
-            if (!this.v$.$error) {
-              const self = this;
-                this.$store.dispatch('login', {
-                    email: this.state.email,
-                    password: this.state.password
-
-                }).then(() => {
-                  this.$router.push('/timelinePage');
-
-                }).catch((error) => {
-                  if (self.status == 'user_not_found') {
-                    console.log(error)
-                    alert('Email et/ou mot de passe invalide');
-                  
-                  } else if (self.status == 'error_login_regex') {
-                    alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !');
-
-                  } else if (self.status == 'error_blocked') {
-                    alert('Le nombre d\'essais autorisés a été dépassé, veuillez réessayer ultérieurement.');
-
-                  } else {
-                    return self.$router.push('/:pathMatch(.*)');
-                  }
-                })
-            } else {
-                alert('veuillez renseigner les champs correctement.')
-            }
-        }
-    }
+        ...mapState({
+            status: 'status',
+            user: 'user',
+            userInfos: 'userInfos'
+        })
+    },
 }
 </script>
 
-<style scoped>
+<style>
 .login_page {
   background: url('../assets/building_background.jpg') fixed no-repeat center;
   background-size: cover;
@@ -139,13 +75,6 @@ export default {
   color: rgb(255, 57, 57);
   font-weight: bold;
 }
-#login_page_form {
-  height: 70%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
 .login_main {
   background-color: rgba(8, 8, 58, 0.699);
   color: white;
@@ -157,45 +86,45 @@ export default {
   align-items: center;
   margin-top: 2em;
 }
-input {
+#login_page_form #login_form{
+  height: 70%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#login_page_form input {
   margin-bottom: 1em;
   margin-top: 0.5em;
   width: 30em;
   height: 30px;
   border-radius: 10px;
 }
-.input_error_container {
+#login_page_form .input_error_container {
     display: flex;
     align-items: center;
 }
-.input_error {
-    margin-left: 1em;
+#login_page_form .input_error {
     margin-bottom: .5em;
-    color: rgb(255, 57, 57);
+    margin-left: 27em;
 }
-.button_info {
-  display: flex;
-} 
-.inputs_info {
-  margin-left: 1em;
-  font-size: 14px;
+#login_page_form .btn_login {
+  background-color: white;
+  color: black;
+  text-decoration: inherit;
+  width: 150px;
+  border-radius: 5px;
+  margin-top: 1em;
 }
-.button--disabled {
+#login_page_form .button--disabled {
   pointer-events: none;
   background-color: rgba(194, 194, 194, 0.589);
   color: rgba(0, 0, 0, 0.589);
 }
-button {
-  width: 150px;
-  height: 30px;
-  border-radius: 5px;
-  margin-top: 1em;
-  transition: .5s;
-}
-button:hover {
-  background-color: rgb(255, 57, 57);
-  transition: .3s;
+#login_page_form .btn_login:hover {
   cursor: pointer;
+  color: grey;
+  transition: .3s;
 }
 a {
   color: rgb(255, 255, 255);

@@ -10,8 +10,7 @@ let user = localStorage.getItem('user');
 if (!user) {
   user = {
     userId: -1,
-    token: '',
-    isAdmin: 0,
+    token: ''
   };
 } else {
     try {
@@ -20,8 +19,7 @@ if (!user) {
     } catch (e) {
       user = {
         userId: -1,
-        token: '',
-        isAdmin: 0,
+        token: ''
       }
     }
 }
@@ -36,232 +34,279 @@ export default createStore({
     postReactions: [],
   },
   mutations: {
-    setStatus (state, status) {
+    SET_STATUS (state, status) {
       state.status = status;
     },
-    logUser (state, user) {
+    LOG_USER (state, user) {
       instance.defaults.headers.common['Authorization'] = `Bearer ${user.token}`;
       localStorage.setItem('user', JSON.stringify(user));
       state.user = user;
     },
-    userInfos (state, userInfos) {
+    USER_INFOS (state, userInfos) {
       state.userInfos = userInfos;
     },
-    allUsers (state, users) {
+    ALL_USERS (state, users) {
       state.users = users;
     },
-    allPosts (state, posts) {
+    ALL_POSTS (state, posts) {
       state.posts = posts;
     },
-    allReactions (state, postReactions) {
+    ALL_REACTIONS (state, postReactions) {
       state.postReactions = postReactions;
     }
   },
   actions: {
     createAccount: ({commit}, userInfos) => {
-      commit('setStatus', 'loading');
+      commit('SET_STATUS', 'loading');
       return new Promise((resolve, reject) => {
         instance.post('/auth/signup', userInfos) 
         .then((response) => {
-          commit('setStatus', 'userCreated');
+          commit('SET_STATUS', 'userCreated');
           resolve(response);
         })
         .catch((error) => {
           if (error.response.status === 400) {
-            commit('setStatus', 'error_email');
+            commit('SET_STATUS', 'error_email');
             reject(error);
 
           } else if (error.response.status === 401) {
-            commit('setStatus', 'error_regex');
+            commit('SET_STATUS', 'error_regex');
             reject(error);
 
           } else if (error.response.status === 429) {
-            commit('setStatus', 'error_too_many');
+            commit('SET_STATUS', 'error_too_many');
             reject(error);
 
           } else {
-            commit('setStatus', 'error_create');
+            commit('SET_STATUS', 'error_create');
             reject(error);
           } 
         });
       })
     },
     login: ({commit}, userInfos) => {
-      commit('setStatus', 'loading');
+      commit('SET_STATUS', 'loading');
       return new Promise((resolve, reject) => {
         instance.post('/auth/login', userInfos) 
         .then((response) => {
-          commit('setStatus', 'loggedIn');
-          commit('logUser', response.data);
+          commit('SET_STATUS', 'loggedIn');
+          commit('LOG_USER', response.data);
           resolve(response);
         })
         .catch((error) => {
           if (error.response.status === 400) {
-            commit('setStatus', 'user_not_found');
+            commit('SET_STATUS', 'user_not_found');
             reject(error);
 
           } else if (error.response.status === 401) {
-            commit('setStatus', 'error_login_regex');
+            commit('SET_STATUS', 'error_login_regex');
             reject(error);
 
           } else if (error.response.status === 429) {
-            commit('setStatus', 'error_blocked');
+            commit('SET_STATUS', 'error_blocked');
             reject(error);
             
           } else {
-            commit('setStatus', 'error_login');
+            commit('SET_STATUS', 'error_login');
             reject(error);
           }
         });
       })
     },
     getUserInfos: ({commit}) => {
-      commit('setStatus', 'loading');
+      commit('SET_STATUS', 'loading');
       instance.get(`/auth/${user.userId}`)
       .then((response) => {
-        commit('userInfos', response.data);
+        commit('USER_INFOS', response.data);
+        commit('SET_STATUS', 'catched');
       })
       .catch(() => {
-        commit('setStatus', 'error_user');
+        commit('SET_STATUS', 'error_user');
       })
     },
     getUserByItsId: ({commit}, userId) => {
-      commit('setStatus', 'loading');
+      commit('SET_STATUS', 'loading');
       instance.get(`/auth/${userId.userId}`)
       .then((response) => {
-        commit('userInfos', response.data);
+        commit('USER_INFOS', response.data);
       })
       .catch(() => {
-        commit('setStatus', 'error_user');
+        commit('SET_STATUS', 'error_user');
       })
     },
     updateProfile: ({commit}, updateInfos) => {
-      commit('setStatus', 'loading');
+      commit('SET_STATUS', 'loading');
       return new Promise((resolve, reject) => {
         instance.put(`/auth/${user.userId}`, updateInfos) 
         .then((response) => {
-          commit('setStatus', 'user_updated');
-          commit('userInfos', response.data);
+          commit('SET_STATUS', 'user_updated');
+          commit('USER_INFOS', response.data);
           resolve(response);
         })
         .catch((error) => {
           if (error.response.status === 403) {
-            commit('setStatus', 'not_allowed_to_update');
+            commit('SET_STATUS', 'not_allowed_to_update');
             reject(error);
 
           } else if (error.response.status === 401) {
-            commit('setStatus', 'error_update_regex');
+            commit('SET_STATUS', 'error_update_regex');
             reject(error);
 
           } else {
-            commit('setStatus', 'error_update'); 
+            commit('SET_STATUS', 'error_update'); 
             reject(error);
           }
         });
       });  
     },
     getAllUsers: ({commit}, users) => {
-      commit('setStatus', 'loading');
+      commit('SET_STATUS', 'loading');
       return new Promise((resolve, reject) => { 
         instance.post('/auth/', users)
         .then((response) => {
-          commit('setStatus', 'succeed');
-          commit('allUsers', response.data);
+          commit('SET_STATUS', 'succeed');
+          commit('ALL_USERS', response.data);
           resolve(response.data);
         })
         .catch((error) => {
-          commit('setStatus', 'error_users');
+          commit('SET_STATUS', 'error_users');
           reject(error);
         })
       })
     },
     createPost: ({commit}, postInfos) => {
-      commit('setStatus', 'loading');
+      commit('SET_STATUS', 'loading');
       return new Promise((resolve, reject) => {
         instance.post('/post/', postInfos)
         .then((response) => {
-          commit('setStatus', 'postCreated');
+          commit('SET_STATUS', 'postCreated');
           resolve(response);
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            commit('setStatus', 'error_regex');
+            commit('SET_STATUS', 'error_regex');
             reject(error);
 
           }  else {
-            commit('setStatus', 'error_create');
+            commit('SET_STATUS', 'error_create');
             reject(error);
           } 
         })
       })
     },
     getAllPosts: ({commit}) => {
-      commit('setStatus', 'loading');
+      commit('SET_STATUS', 'loading');
       instance.get('/post/')
       .then((response) => {
-        commit('setStatus', 'succeed');
-        commit('allPosts', response.data);
+        commit('SET_STATUS', 'succeed');
+        commit('ALL_POSTS', response.data);
       })
       .catch(() => {
-        commit('setStatus', 'error_posts');
+        commit('SET_STATUS', 'error_posts');
       })
     },
     createComment: ({commit}, commentInfos) => {
-      commit('setStatus', 'loading');
+      commit('SET_STATUS', 'loading'); 
       return new Promise((resolve, reject) => {
         instance.post(`/post/${commentInfos.postId}/comment`, commentInfos.formData)
         .then((response) => {
-          commit('setStatus', 'commentCreated');
+          commit('SET_STATUS', 'commentCreated');
           resolve(response);
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            commit('setStatus', 'error_regex');
+            commit('SET_STATUS', 'error_regex');
             reject(error);
 
           }  else {
-            commit('setStatus', 'error_create');
+            commit('SET_STATUS', 'error_create');
             reject(error);
           } 
         })
       })
     },
     createPostReaction: ({commit}, postReaction) => {
-      commit('setStatus', 'loading');
+      commit('SET_STATUS', 'loading');
       return new Promise((resolve, reject) => {
-        instance.post(`/post/${postReaction.postId}/postReaction`, postReaction)
+        instance.post(`/post/${postReaction.postId}/postReaction`, {
+          reaction: postReaction.reaction
+        })
         .then((response) => {
-          commit('setStatus', 'isLiked');
+          commit('SET_STATUS', 'isLiked');
           resolve(response);
         })
         .catch((error) => {
-            commit('setStatus', 'error_create');
+            commit('SET_STATUS', 'error_create');
             reject(error);
         })
       })
     },
     updatePostReaction: ({commit}, postReaction) => {
-      commit('setStatus', 'loading');
+      commit('SET_STATUS', 'loading');
       return new Promise((resolve, reject) => {
-        instance.put(`/post/${postReaction.postId}/postReaction/${postReaction.id}`, postReaction)
+        instance.put(`/post/${postReaction.postId}/postReaction/${postReaction.id}`, {
+          reaction: postReaction.reaction
+        })
         .then((response) => {
-          commit('setStatus', 'likeChanged');
+          commit('SET_STATUS', 'likeUpdated');
           resolve(response);
         })
         .catch((error) => {
-            commit('setStatus', 'error_update');
+            commit('SET_STATUS', 'error_update');
             reject(error);
         })
       })
     },
     deletePostReaction: ({commit}, postReaction) => {
-      commit('setStatus', 'loading');  
+      commit('SET_STATUS', 'loading');  
       instance.delete(`/post/${postReaction.postId}/postReaction/${postReaction.id}`)
       .then(() => {
-        commit('setStatus', 'likeDeleted');
+        commit('SET_STATUS', 'likeDeleted');
       })
       .catch(() => {
-          commit('setStatus', 'error_delete');
+          commit('SET_STATUS', 'error_delete');
+      })
+    },
+    createCommentReaction: ({commit}, commentReaction) => {
+      commit('SET_STATUS', 'loading');
+      return new Promise((resolve, reject) => {
+        instance.post(`/post/${commentReaction.postId}/comment/${commentReaction.commentId}/commentReaction`, {
+          reaction: commentReaction.reaction
+        })
+        .then((response) => {
+          commit('SET_STATUS', 'isLiked');
+          resolve(response);
+        })
+        .catch((error) => {
+            commit('SET_STATUS', 'error_create');
+            reject(error);
+        })
+      })
+    },
+    updateCommentReaction: ({commit}, commentReaction) => {
+      commit('SET_STATUS', 'loading');
+      return new Promise((resolve, reject) => {
+        instance.put(`/post/${commentReaction.postId}/comment/${commentReaction.commentId}/commentReaction/${commentReaction.id}`, {
+          reaction: commentReaction.reaction
+        })
+        .then((response) => {
+          commit('SET_STATUS', 'likeUpdated');
+          resolve(response);
+        })
+        .catch((error) => {
+            commit('SET_STATUS', 'error_update');
+            reject(error);
+        })
+      })
+    },
+    deleteCommentReaction: ({commit}, commentReaction) => {
+      commit('SET_STATUS', 'loading');  
+      instance.delete(`/post/${commentReaction.postId}/comment/${commentReaction.commentId}/commentReaction/${commentReaction.id}`)
+      .then(() => {
+        commit('SET_STATUS', 'likeDeleted');
+      })
+      .catch(() => {
+          commit('SET_STATUS', 'error_delete');
       })
     }
   }

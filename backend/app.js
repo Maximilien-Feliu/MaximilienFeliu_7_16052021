@@ -6,7 +6,7 @@ const { sequelize } = require('./models/index');
 const formData = require('express-form-data');
 
 const helmet = require('helmet');
-const toobusy = require('toobusy-js');
+const toobusy = require('toobusy-js'); 
 const hpp = require('hpp');                                             // protect against HTTP Parameter Pollution attacks
 const rateLimiter = require('./middleware/rateLimiter.js');
 
@@ -58,7 +58,7 @@ sequelize.sync();
 
 app.use('/api/auth', userRoutes);
 app.use('/api/post', postRoutes); 
-app.use('/api/post', commentRoutes); 
+app.use('/api/post', commentRoutes);   
 app.use('/api/post', postReactionRoutes);
 app.use('/api/post/:postId/comment', commentReactionRoutes);
 

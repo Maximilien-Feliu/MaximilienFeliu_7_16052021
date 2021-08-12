@@ -4,9 +4,9 @@ module.exports = (sequelize, DataTypes) => {
     const Post = sequelize.define('Post', {
         _id: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: false, 
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true 
         },
         text: {
             type: DataTypes.TEXT, 
