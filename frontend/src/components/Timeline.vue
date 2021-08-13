@@ -42,8 +42,8 @@
             <div class="comment_section">
                 <div class="write_comment">
                     <img :src="userInfos.attachment" :alt="'photo de profil de ' + `${userInfos.firstName}`">
-                    <input type="text" :id="'input_comment'+[i]" v-model="commentText[i]" class="input_comment" name="input_comment" placeholder="Écrivez un commentraire...">
-                    <label :for="'comment_file'+[i]"><i class="fas fa-images btn_comment_file"></i></label>
+                    <textarea type="text" :id="'input_comment'+[i]" v-model="commentText[i]" class="input_comment" name="input_comment" placeholder="Écrivez un commentraire..."></textarea>
+                    <label :for="'comment_file'+[i]"><i class="fas fa-images btn_comment_file upload_file"></i></label>
                     <input type="file" name="comment_file" class="hide" :id="'comment_file'+[i]" accept="image/*" @change="uploadImage">
                     
                     <Emojis @append="updateInputComment" :inputIndex="i"></Emojis>
@@ -52,7 +52,7 @@
                 </div>
                 <div class="img_option">
                     <img :class="{'hide' : !previewImage}" :src="previewImage" :alt="'Aperçu de l\'image du commentaire de ' + `${userInfos.firstName}`">
-                    <button type="button" :class="{'hide' : !previewImage}" @click="cancelImage">Retirer</button>
+                    <button v-if="previewImage" class="img_option_btn" type="button" @click="previewImage = !previewImage">Retirer</button>
                 </div>
 
                 <div class="last_comment" v-if="post.Comments.length > 0">
@@ -63,14 +63,35 @@
                         <div class="comment_reactions_length" v-if="post.Comments[0].CommentReactions">{{ post.Comments[0].CommentReactions.length }} 
                             <span class="comment_reactions_length1">❤️</span><span class="comment_reactions_length2">😂</span><span class="comment_reactions_length3">👏</span><span class="comment_reactions_length4">😢</span><span class="comment_reactions_length5">😡</span>
                         </div>
-                        <div class="comment_bubble">
+
+                        <div class="comment_bubble" v-if="!inputComment">
                             <span class="comment_username bold">{{post.Comments[0].User.firstName}} {{post.Comments[0].User.lastName}}</span>
                             <p class="comment_text">{{post.Comments[0].text}}</p>
                         </div>
-                        <img v-if="post.Comments[0].attachment" :src="post.Comments[0].attachment" :alt="'attachement commentaire de ' + `${post.Comments[0].User.firstName}`">
+
+        <!--update comment-->
+                         <div v-else class="update_input">
+                            <textarea type="text" class="input_update_comment" name="input_update_comment" :id="'input_update_comment'+[i]" v-model="previousCommentText" autofocus></textarea>
+                            <div class="post_update_comment">
+                                <label :for="'update_comment_file'+[i]"><i class="fas fa-images btn_comment_file"></i></label>
+                                <input type="file" name="comment_file" class="hide" :id="'update_comment_file'+[i]" accept="image/*" @change="uploadImageUpdate">
+                                <button class="btn_comment" type="button" @click="updateComment(post._id, post.Comments[0]._id)">Commenter</button>
+                            </div>
+                        </div>
+        <!--fin update comment-->
+
+                        <img v-if="post.Comments[0].attachment" :src="previewImageUpdate || post.Comments[0].attachment" :alt="'attachement commentaire de ' + `${post.Comments[0].User.firstName}`">
+                        <button v-if="previewImageUpdate" type="button" class="img_option_btn" @click="previewImageUpdate = !previewImageUpdate">Retirer</button>
                         <br v-if="post.Comments[0].attachment" />
 
                         <Reactions :likeName="'lastcomment'" :userId="userInfos._id" :postId="posts[i]._id" :commentId="posts[i].Comments[0]._id" :postIndex="i" :objectIndex="0" :reactions="posts[i].Comments[0].CommentReactions" :handleReaction="handleCommentReaction"></Reactions>
+                    </div>
+
+                    <Toggle :user="userInfos" :objectToHandle="posts[i].Comments[0]" @display="displayInputComment" @check="checkDeleteComment"></Toggle>
+                    <div class="delete_comment" v-if="checkDelete">
+                        <p class="bold">En êtes-vous sûr ?</p>
+                        <button type="button" @click="deleteComment(post._id, post.Comments[0]._id)">Oui</button>
+                        <button type="button" @click="checkDelete = !checkDelete">Non</button>
                     </div>
                 </div>
 
@@ -82,11 +103,20 @@
                         <div class="comment_reactions_length" v-if="post.Comments[index].CommentReactions">{{ post.Comments[index].CommentReactions.length }} 
                             <span class="comment_reactions_length1">❤️</span><span class="comment_reactions_length2">😂</span><span class="comment_reactions_length3">👏</span><span class="comment_reactions_length4">😢</span><span class="comment_reactions_length5">😡</span>
                         </div>
-                        <div class="comment_bubble">
+                        <div v-if="!inputComment[index]" class="comment_bubble">
                             <span class="comment_username bold">{{comment.User.firstName}} {{comment.User.lastName}}</span>
                             <p class="comment_text">{{comment.text}}</p>
                         </div>
+                        <div v-else class="update_input">
+                            <textarea type="text" class="input_update_comment" name="input_update_comment" :id="'input_update_comment'+[i]+[index]" v-model="previousCommentText" autofocus></textarea>
+                            <div class="post_update_comment">
+                                <label :for="'update_comment_file'+[i]+[index]"><i class="fas fa-images btn_comment_file"></i></label>
+                                <input type="file" name="comment_file" class="hide" :id="'update_comment_file'+[i]+[index]" accept="image/*" @change="uploadImageUpdate">
+                                <button class="btn_comment" type="button" @click="updateComment(post._id, post.Comments[index]._id)">Commenter</button>
+                            </div>
+                        </div>
                         <img v-if="comment.attachment" :src="comment.attachment" :alt="'attachement commentaire de ' + `${comment.User.firstName}`">
+                        <button v-if="previewImageUpdate" type="button" class="img_option_btn" @click="previewImageUpdate = !previewImageUpdate">Retirer</button>
                         <br v-if="comment.attachment" />
 
                         <Reactions :likeName="'comments'" :userId="userInfos._id" :postId="posts[i]._id" :commentId="posts[i].Comments[index]._id" :postIndex="i" :objectIndex="index" :reactions="posts[i].Comments[index].CommentReactions" :handleReaction="handleCommentReaction"></Reactions>
@@ -105,20 +135,27 @@ import moment from 'moment'
 import Emojis from '@/components/Emojis.vue'
 import Reactions from '@/components/Reactions.vue'
 import HandlePost from '@/components/HandlePost.vue'
+import Toggle from '@/components/Toggle.vue'
 
 export default {
     name: 'Timeline',
     components: {
         Emojis,
         Reactions,
-        HandlePost
+        HandlePost,
+        Toggle
     },
     data () {
         return {
             commentText: [''],
+            emoji: '',
             previewImage: null,
+            previewImageUpdate: null,
             attachment: null,
             activeComments: null,
+            previousCommentText: '',
+            inputComment: false,
+            checkDelete: false,
             handlePostReaction: {
                 add: 'createPostReaction',
                 update: 'updatePostReaction',
@@ -151,15 +188,14 @@ export default {
             this.files = e.target.files[0];
             this.previewImage = URL.createObjectURL(this.files);
         },
-        cancelImage () {
-            this.previewImage = null;
-            this.files = null;
+        uploadImageUpdate (e) {
+            this.files = e.target.files[0];
+            this.previewImageUpdate = URL.createObjectURL(this.files);
         },
         focusinput () {
             this.$ref.inputComment.focus();
         },
         comment (postId) {
-            
             const formData = new FormData();
 
             if(this.files != undefined || this.files != null) {
@@ -184,6 +220,39 @@ export default {
                 }
             })
         },
+        updateComment (postId, commentId) {  
+            const formData = new FormData();
+
+            if(this.files != undefined || this.files != null) {
+                formData.append('attachment', this.files);
+            }
+            if(this.previousCommentText != '') {
+                formData.append('text', this.previousCommentText);
+            }
+            this.$store.dispatch('updateComment', {
+                formData,
+                postId: postId,
+                id: commentId
+            })
+            .then(() => {
+                window.location.reload();
+            })
+            .catch(() => {
+                if (this.status == 'error_regex') {
+                    alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !')
+                
+                } else {
+                    this.$router.push('/:pathMatch(.*)');
+                }
+            })
+        },
+        deleteComment (postId, commentId) {     
+                this.$store.dispatch('deleteComment', {
+                    postId: postId,
+                    id: commentId
+                })
+            window.location.reload();
+        },
         selectComment (i) {     
             this.activeComments = i;
         },
@@ -191,10 +260,17 @@ export default {
             this.activeComments = null;
         }, 
         updateInputComment (inputEmoji) {
-            document.getElementById(i)
             this.commentText += inputEmoji;
             console.log(this.commentText)
         },
+        displayInputComment (display) {
+            this.inputComment = display;
+            console.log(this.inputComment)
+        },
+        checkDeleteComment (check) {
+            this.checkDelete = check;
+            console.log(this.checkDelete);
+        }
     }
 }
 </script>
@@ -307,6 +383,45 @@ export default {
     background-color: aliceblue;
     border: 1px solid grey;
 }
+.upload_file {
+    margin-right: 5px;
+}
+.update_input {
+    display: flex;
+}
+.post_update_comment {
+    margin-top: .7em;
+}
+.input_update_comment {
+    border-radius: 10px;
+    height: 3em;
+    width: 15em;
+}
+.delete_comment {
+    position: absolute;
+    background-color: white;
+    left: 20em;
+    border: 1px solid grey;
+    border-radius: 10px;
+    width: 30%;
+    height: 5em;
+}
+.delete_comment p {
+    margin-left: 2.5em;
+}
+.delete_comment button {
+    cursor: pointer;
+    background-color: rgba(8, 8, 58, 0.856);
+    color: white;
+    width: 40%;
+    height: 30%;
+    margin-left: 1em;
+    border-radius: 5px;
+    transition: .3s;
+}
+.delete_comment button:hover {
+    background-color: rgba(8, 8, 58, 0.534);
+}
 ::placeholder {
     padding-left: 1em;
     padding-top: .5em;
@@ -352,7 +467,7 @@ export default {
     height: 100px;
     object-fit: cover;
 }
-.img_option button {
+.img_option_btn {
     cursor: pointer;
     height: 2em;
     margin-top: 2.5em;
@@ -362,7 +477,7 @@ export default {
     border-radius: 5px;
     transition: .3s;
 }
-.img_option button:hover {
+.img_option_btn:hover {
     background-color: rgba(8, 8, 58, 0.534); 
 }
 .last_comment, .show_comments {

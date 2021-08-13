@@ -27,9 +27,6 @@ export default {
             this.inputEmoji = e.detail.unicode; 
             this.emojis = !this.emojis;
             this.$emit('append', this.inputEmoji);
-            /*let input = document.getElementById('input_comment' + this.inputIndex).value;
-            input += ' '+e.detail.unicode;
-            console.log(input)*/
         }
     }
 }

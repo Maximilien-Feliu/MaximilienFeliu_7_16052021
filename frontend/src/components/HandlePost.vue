@@ -3,55 +3,55 @@
         <button class="handle_post_toggle" @click="handlePostToggle = !handlePostToggle">
             <i class="fas fa-ellipsis-h"></i>
         </button>
-            <ul class="hide" :class="{'show_toggle' : handlePostToggle}">
-                <li @click="displayPost = !displayPost; handlePostToggle = !handlePostToggle" class="li_update" v-if="user.isAdmin === 1 || user._id == postToHandle.UserId">
-                    <i class="fas fa-pen"></i>
-                    Modifier
-                </li>
-                <li @click="checkDelete = !checkDelete; handlePostToggle = !handlePostToggle" class="li_delete" v-if="user.isAdmin === 1 || user._id == postToHandle.UserId">
-                    <i class="fas fa-trash"></i>
-                    Supprimer
-                </li>
-                <li class="li_report">
-                    <i class="far fa-flag"></i>
-                    Signaler
-                </li>
-            </ul>
+        <ul class="hide" :class="{'show_toggle' : handlePostToggle}">
+            <li @click="displayPost = !displayPost; handlePostToggle = !handlePostToggle" class="li_update" v-if="user.isAdmin === 1 || user._id == postToHandle.UserId">
+                <i class="fas fa-pen"></i>
+                Modifier
+            </li>
+            <li @click="checkDelete = !checkDelete; handlePostToggle = !handlePostToggle" class="li_delete" v-if="user.isAdmin === 1 || user._id == postToHandle.UserId">
+                <i class="fas fa-trash"></i>
+                Supprimer
+            </li>
+            <li class="li_report">
+                <i class="far fa-flag"></i>
+                Signaler
+            </li>
+        </ul>
 
-            <div v-if="displayPost || checkDelete" class="post_modal_overlay" @click="displayModal"></div>
+        <div v-if="displayPost || checkDelete" class="post_modal_overlay" @click="displayModal"></div>
 
-            <div v-if="displayPost" class="post_modal">
-                <div class="infos_user_post">
-                    <img :src="postToHandle.User.attachment" :alt="'Photo de profil de ' + `${postToHandle.User.firstName}`" class="user_profile_picture" />
-                    <div class="infos_user_date">
-                        <span class="infos_user_name">{{postToHandle.User.firstName}} {{postToHandle.User.lastName}}</span>
-                        <br />
-                        <span class="created_at">{{ moment(postToHandle.createdAt) }}</span>
-                    </div>
-                </div>
-
-                <div class="post_content">
-                    <textarea class="post_modal_textarea" v-model="postInput" name="post_text" autofocus></textarea>
-                    <Emojis class="emojis_post_modal" @append="updateInput"></Emojis>
-
-                    <img v-if="postToHandle.attachment || previewImage" class="img_post" :src="previewImage || postToHandle.attachment" :alt="'attachement relié à la publication de ' + `${postToHandle.User.firstName}`">
-                    <div class="img_option_modal">         
-                        <label v-if="postToHandle.attachment" :for="'post_file_modal'+postIndex" class="btn_post_file_modal"><i class="fas fa-images"></i>Modifier la photo</label>
-                        <label v-else :for="'post_file_modal'+postIndex" class="btn_post_file_modal_add"><i class="fas fa-images"></i>Ajouter une photo</label>
-                        <button type="button" class="btn_preview_img_modal" :class="{'hide' : !previewImage}" @click="previewImage = !previewImage">Retirer</button>
-                    </div>
-
-                    <input type="file" class="hide" name="post_file_modal" :id="'post_file_modal'+postIndex" accept="image/*" @change="uploadImage">
-                    <button type="submit" @click="updatePost" class="btn_post_modal">
-                        <span>Publier</span>
-                    </button>
+        <div v-if="displayPost" class="post_modal">
+            <div class="infos_user_post">
+                <img :src="postToHandle.User.attachment" :alt="'Photo de profil de ' + `${postToHandle.User.firstName}`" class="user_profile_picture" />
+                <div class="infos_user_date">
+                    <span class="infos_user_name">{{postToHandle.User.firstName}} {{postToHandle.User.lastName}}</span>
+                    <br />
+                    <span class="created_at">{{ moment(postToHandle.createdAt) }}</span>
                 </div>
             </div>
-            <div v-if="checkDelete" class="check_delete">
-                <p class="bold">Etes vous sûr de vouloir supprimer ce post ?</p>
-                <button type="button" class="btn_check" @click="deletePost">Oui</button>
-                <button type="button" class="btn_check" @click="checkDelete = !checkDelete">Non</button>
+
+            <div class="post_content">
+                <textarea class="post_modal_textarea" v-model="postInput" name="post_text" autofocus></textarea>
+                <Emojis class="emojis_post_modal" @append="updateInput"></Emojis>
+
+                <img v-if="postToHandle.attachment || previewImage" class="img_post" :src="previewImage || postToHandle.attachment" :alt="'attachement relié à la publication de ' + `${postToHandle.User.firstName}`">
+                <div class="img_option_modal">         
+                    <label v-if="postToHandle.attachment" :for="'post_file_modal'+postIndex" class="btn_post_file_modal"><i class="fas fa-images"></i>Modifier la photo</label>
+                    <label v-else :for="'post_file_modal'+postIndex" class="btn_post_file_modal_add"><i class="fas fa-images"></i>Ajouter une photo</label>
+                    <button type="button" class="btn_preview_img_modal" :class="{'hide' : !previewImage}" @click="previewImage = !previewImage">Retirer</button>
+                </div>
+
+                <input type="file" class="hide" name="post_file_modal" :id="'post_file_modal'+postIndex" accept="image/*" @change="uploadImage">
+                <button type="submit" @click="updatePost" class="btn_post_modal">
+                    <span>Publier</span>
+                </button>
             </div>
+        </div>
+        <div v-if="checkDelete" class="check_delete">
+            <p class="bold">Etes vous sûr de vouloir supprimer ce post ?</p>
+            <button type="button" class="btn_check" @click="deletePost">Oui</button>
+            <button type="button" class="btn_check" @click="checkDelete = !checkDelete">Non</button>
+        </div>
     </div>
 </template>
 

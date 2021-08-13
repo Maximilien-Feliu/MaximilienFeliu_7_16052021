@@ -24,7 +24,7 @@
     "password-validator": "^5.1.1",
     "path": "^0.12.7",
     "rate-limiter-flexible": "^2.2.2",
-    "sequelize": "^6.6.2",
+    "sequelize": "^6.6.5",
     "sequelize-cli": "^6.2.0",
     "toobusy-js": "^0.5.1"
   }

@@ -260,6 +260,41 @@ export default createStore({
         })
       })
     },
+    updateComment: ({commit}, updateInfos) => {
+      commit('SET_STATUS', 'loading');
+      return new Promise((resolve, reject) => {
+        instance.put(`/post/${updateInfos.postId}/comment/${updateInfos.id}`, commentInfos.formData) 
+        .then((response) => {
+          commit('SET_STATUS', 'comment_updated');
+          resolve(response);
+        })
+        .catch((error) => {
+          if (error.response.status === 403) {
+            commit('SET_STATUS', 'not_allowed_to_update');
+            reject(error);
+
+          } else if (error.response.status === 401) {
+            commit('SET_STATUS', 'error_update_regex');
+            reject(error);
+
+          } else {
+            commit('SET_STATUS', 'error_update'); 
+            reject(error);
+          }
+        });
+      });  
+    },
+    deleteComment: ({commit}, commentInfos) => {
+      commit('SET_STATUS', 'loading');  
+      instance.delete(`/post/${commentInfos.postId}/comment/${commentInfos.id}`)
+      .then(() => {
+        commit('SET_STATUS', 'comment_deleted');
+        console.log(state.status);
+      })
+      .catch(() => {
+          commit('SET_STATUS', 'error_delete');
+      })
+    },
     createPostReaction: ({commit}, postReaction) => {
       commit('SET_STATUS', 'loading');
       return new Promise((resolve, reject) => {
