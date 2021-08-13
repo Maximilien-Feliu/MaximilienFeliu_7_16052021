@@ -28,4 +28,9 @@ input {
 .hide {
   display: none;
 }
+@media screen and (max-width: 768px) {
+  #app {
+    font-size: smaller;
+  }
+}
 </style>

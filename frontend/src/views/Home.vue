@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <LoginHeader />
+    <LoginHeader class="responsive_login" />
 
     <div id="body">
 
@@ -98,5 +98,12 @@ section {
   font-size: 20px;
   line-height: 2em;
 }
-
+@media screen and (max-width: 768px) {
+  section {
+    flex-direction: column-reverse;
+  }
+  #hello {
+    width: 100%;
+  }
+}
 </style>

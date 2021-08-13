@@ -240,4 +240,17 @@ button:hover {
   transition: .3s;
   cursor: pointer;
 }
+@media screen and (max-width: 768px) {
+  #signup {
+    width: 100%;
+    padding: 0;
+    margin-left: 0;
+  }
+  input {
+    width: 80%;
+  }
+  .input_error_container_signup, .button_info {
+    flex-direction: column;
+  }
+}
 </style>

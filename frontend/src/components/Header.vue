@@ -23,4 +23,9 @@ header {
   margin-left: 15px;
   margin-top: 5px;
 }
+@media screen and (max-width: 1100px) {
+  .logo {
+    width: 300px;
+  }
+}
 </style>

@@ -4,6 +4,7 @@
 
       <LoginComponent />
 
+      <button class="btn_login btn_login_responsive" @click="goToLogin">Se connecter</button>
     </div>
 </template>
 
@@ -15,6 +16,11 @@ export default {
     components: {
       LoginComponent
     },
+    methods: {
+      goToLogin () {
+        this.$router.push('/login');
+      }
+    }
 }
 </script>
 
@@ -25,6 +31,7 @@ export default {
   background-color: rgba(8, 8, 58, 0.699);
   height: 70px;
   width: 97%;
+  flex-wrap: wrap;
 }
 .logo{
   width: 23%;
@@ -65,5 +72,33 @@ export default {
   cursor: pointer;
   color: rgb(255, 57, 57);
   transition: .3s;
+}
+.btn_login_responsive {
+  display: none;
+}
+@media screen and (max-width: 1100px) {
+  #login {
+    display: none;
+  }
+  .btn_login_responsive {
+    display: block;
+  }
+  .logo {
+    width: 300px;
+  }
+}
+@media screen and (max-width: 768px) {
+  .btn_login_responsive {
+    position: absolute;
+    top: 10em;
+    right: 5px;
+    font-weight: bold;
+    font-size: larger;
+  }
+}
+@media screen and (max-width: 538px) {
+  .btn_login_responsive {
+    top: 12em
+  }
 }
 </style>

@@ -136,4 +136,14 @@ a:hover {
   color: rgb(255, 57, 57);
   transition: .3s;
 }
+@media screen and (max-width: 1100px) {
+  .login_main {
+    width: 100%;
+  }
+}
+@media screen and (max-width: 768px) {
+  #login_page_form input {
+    width: 15em;
+  }
+}
 </style>
