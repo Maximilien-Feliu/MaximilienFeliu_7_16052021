@@ -168,6 +168,16 @@ export default createStore({
         });
       });  
     },
+    deleteUser: ({commit}) => {
+      commit('SET_STATUS', 'loading');  
+      instance.delete(`/auth/${user.userId}`)
+      .then(() => {
+        commit('SET_STATUS', 'user_deleted');
+      })
+      .catch(() => {
+          commit('SET_STATUS', 'error_delete');
+      })
+    },
     getAllUsers: ({commit}, users) => {
       commit('SET_STATUS', 'loading');
       return new Promise((resolve, reject) => { 

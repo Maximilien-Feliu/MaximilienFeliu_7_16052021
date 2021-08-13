@@ -8,7 +8,7 @@ exports.createComment = (req, res) => {
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
-    if (req.body.text || req.body.attachment) {
+    if (req.body.text || req.file) {
         return models.Comment.create({
             text: req.body.text,
             attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,

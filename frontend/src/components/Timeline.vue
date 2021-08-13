@@ -48,7 +48,7 @@
                     <router-link :to="`/ProfileUser/${post.User._id}`" class="link_user">
                         <img :src="userInfos.attachment" :alt="'photo de profil de ' + `${userInfos.firstName}`">
                     </router-link>
-                    <textarea type="text" :id="'input_comment'+[i]" v-model="commentText[i]" class="input_comment" name="input_comment" placeholder="Écrivez un commentraire..."></textarea>
+                    <textarea type="text" :id="'input_comment'+[i]" v-model="commentText[i]" class="input_comment" :data-id="post._id" name="input_comment" placeholder="Écrivez un commentraire..."></textarea>
                     <label :for="'comment_file'+[i]"><i class="fas fa-images btn_comment_file upload_file"></i></label>
                     <input type="file" name="comment_file" class="hide" :id="'comment_file'+[i]" accept="image/*" @change="uploadImage">
                     
@@ -276,8 +276,9 @@ export default {
         hideComments () {
             this.activeComments = null;
         }, 
-        updateInputComment (inputEmoji) {
+        updateInputComment () {
             this.commentText += inputEmoji;
+            console.log(inputEmoji)
             console.log(this.commentText)
         },
         displayInputComment (display) {

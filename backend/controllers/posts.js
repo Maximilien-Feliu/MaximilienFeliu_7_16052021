@@ -10,7 +10,7 @@ exports.createPost = (req, res) => {
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
-    if (req.body.text || req.body.attachment) {
+    if (req.body.text || req.file) {
         return models.Post.create({
             text: req.body.text,
             attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
@@ -38,7 +38,7 @@ exports.updatePost = (req, res) => {
             if (post.UserId === userId || admin === 1) {
                 const filename = post.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
                 
-                fs.unlinkSync(`images/${filename}`);
+                fs.unlinkSync(`images/${filename}`); 
                 
                 let postObject = {
                     ...req.body, 
