@@ -7,7 +7,7 @@
         <div class="main_container">
             <div class="main_timeline">
                 <Post />
-                <Timeline />
+                <Timeline :postsArray="posts"/>
             </div>
             <aside>
                 <ProfileMiniature class="main_miniature"/>
@@ -41,11 +41,13 @@ export default {
             this.$router.push('/home');
             return;
         }
+        this.$store.dispatch('getAllPosts');
     },
     computed: {
         ...mapState({
             status: 'status',
             user: 'user',
+            posts: ['posts'],
             userInfos: 'userInfos'
         })
     },

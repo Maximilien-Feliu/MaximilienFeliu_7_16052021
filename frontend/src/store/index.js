@@ -29,8 +29,10 @@ export default createStore({
     status: '',
     user: user,
     userInfos: {},
+    profileUser: {},
     users: [],
     posts: [],
+    postsByUserId: [],
     postReactions: [],
   },
   mutations: {
@@ -45,11 +47,17 @@ export default createStore({
     USER_INFOS (state, userInfos) {
       state.userInfos = userInfos;
     },
+    PROFILE_USER (state, profileUser) {
+      state.profileUser = profileUser      
+    },
     ALL_USERS (state, users) {
       state.users = users;
     },
     ALL_POSTS (state, posts) {
       state.posts = posts;
+    },
+    ALL_POSTS_BY_USER (state, postsByUserId) {
+      state.postsByUserId = postsByUserId;
     },
     ALL_REACTIONS (state, postReactions) {
       state.postReactions = postReactions;
@@ -119,6 +127,7 @@ export default createStore({
       .then((response) => {
         commit('USER_INFOS', response.data);
         commit('SET_STATUS', 'catched');
+        console.log(response.data)
       })
       .catch(() => {
         commit('SET_STATUS', 'error_user');
@@ -128,7 +137,7 @@ export default createStore({
       commit('SET_STATUS', 'loading');
       instance.get(`/auth/${userId.userId}`)
       .then((response) => {
-        commit('USER_INFOS', response.data);
+        commit('PROFILE_USER', response.data);
       })
       .catch(() => {
         commit('SET_STATUS', 'error_user');
@@ -235,6 +244,18 @@ export default createStore({
       .then((response) => {
         commit('SET_STATUS', 'succeed');
         commit('ALL_POSTS', response.data);
+        console.log(response.data)
+      })
+      .catch(() => {
+        commit('SET_STATUS', 'error_posts');
+      })
+    },
+    getAllPostsByUserId: ({commit}, postsInfos) => {
+      commit('SET_STATUS', 'loading');
+      instance.get(`/post/user/${postsInfos.id}`, postsInfos)
+      .then((response) => {
+        commit('SET_STATUS', 'succeed');
+        commit('ALL_POSTS_BY_USER', response.data);
       })
       .catch(() => {
         commit('SET_STATUS', 'error_posts');

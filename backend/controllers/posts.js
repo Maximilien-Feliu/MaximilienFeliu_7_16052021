@@ -159,6 +159,62 @@ exports.getAllPosts = (req, res) => {
         res.status(400).json({ error: error })
     })
 }
+exports.getAllPostsByUserId = (req, res) => {
+    models.Post.findAll({
+        where: {
+            UserId: req.params.id
+        },
+        order: [
+            ['createdAt', 'DESC']
+        ],
+        include: [
+            {
+                model: models.User,
+                attributes: ['_id', 'firstName', 'lastName', 'attachment']
+            },
+            {
+                model: models.Comment,
+                separate: true, 
+                order: [['createdAt', 'DESC']],
+                attributes: ['_id', 'text', 'attachment'],
+                include: [
+                    {
+                        model: models.User,
+                        attributes: ['_id', 'firstName', 'lastName', 'attachment']
+                    },
+                    {
+                        model: models.CommentReaction,
+                        attributes: ['_id', 'reaction', 'UserId'],
+                        separate: true,
+                        include: [
+                        { 
+                            model: models.User,
+                            attributes: ['_id', 'firstName', 'lastName', 'attachment']
+                        }
+                ]
+                    }
+                ]
+            },
+            {
+                model: models.PostReaction,
+                attributes: ['_id', 'reaction', 'UserId'],
+                separate: true,
+                include: [
+                    {
+                        model: models.User,
+                        attributes: ['_id', 'firstName', 'lastName', 'attachment']
+                    }
+                ]
+            }
+        ],
+    })
+    .then(posts => {
+        res.status(200).json(posts);
+    })
+    .catch(error => {
+        res.status(400).json({ error: error })
+    })
+}
 
 exports.getOnePost = (req, res) => {
     models.Post.findOne({

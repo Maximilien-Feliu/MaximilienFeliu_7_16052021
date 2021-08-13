@@ -1,13 +1,17 @@
 <template>
     <div class="timeline">
-        <div class="post" v-for="(post, i) in posts" :key="i">
+        <div class="post" v-for="(post, i) in postsArray" :key="i">
             
-            <HandlePost :user="userInfos" :postToHandle="posts[i]" :postIndex="i"></HandlePost>
+            <HandlePost :user="userInfos" :postToHandle="postsArray[i]" :postIndex="i"></HandlePost>
             
             <div class="infos_user_post">
-                <img :src="post.User.attachment" :alt="'Photo de profil de ' + `${post.User.firstName}`" class="user_profile_picture" />
+                <router-link :to="`/ProfileUser/${post.User._id}`">
+                    <img :src="post.User.attachment" :alt="'Photo de profil de ' + `${post.User.firstName}`" class="user_profile_picture" />
+                </router-link>
                 <div class="infos_user_date">
-                    <span class="infos_user_name">{{post.User.firstName}} {{post.User.lastName}}</span>
+                    <router-link :to="`/ProfileUser/${post.User._id}`" class="link_user">
+                        <span class="infos_user_name">{{post.User.firstName}} {{post.User.lastName}}</span>
+                    </router-link>
                     <br />
                     <span class="created_at">{{ moment(post.createdAt) }}</span>
                 </div>
@@ -25,7 +29,7 @@
             </div>
 
             <div class="buttons">
-                <Reactions :likeName="'post'" :userId="userInfos._id" :postId="posts[i]._id" :postIndex="i" :objectIndex="i" :reactions="posts[i].PostReactions" :handleReaction="handlePostReaction"></Reactions>
+                <Reactions :likeName="'post'" :userId="userInfos._id" :postId="postsArray[i]._id" :postIndex="i" :objectIndex="i" :reactions="postsArray[i].PostReactions" :handleReaction="handlePostReaction"></Reactions>
                 
                 <label :for="'input_comment'+[i]" class="btn_post_react label_comment" >
                     <i class="far fa-comments"></i>
@@ -41,7 +45,9 @@
 
             <div class="comment_section">
                 <div class="write_comment">
-                    <img :src="userInfos.attachment" :alt="'photo de profil de ' + `${userInfos.firstName}`">
+                    <router-link :to="`/ProfileUser/${post.User._id}`" class="link_user">
+                        <img :src="userInfos.attachment" :alt="'photo de profil de ' + `${userInfos.firstName}`">
+                    </router-link>
                     <textarea type="text" :id="'input_comment'+[i]" v-model="commentText[i]" class="input_comment" name="input_comment" placeholder="Écrivez un commentraire..."></textarea>
                     <label :for="'comment_file'+[i]"><i class="fas fa-images btn_comment_file upload_file"></i></label>
                     <input type="file" name="comment_file" class="hide" :id="'comment_file'+[i]" accept="image/*" @change="uploadImage">
@@ -57,7 +63,9 @@
 
                 <div class="last_comment" v-if="post.Comments.length > 0">
                     <div class="comment_user_picture">
-                        <img :src="post.Comments[0].User.attachment" :alt="'Photo de profil de ' + `${post.Comments[0].User.firstName}`">
+                        <router-link :to="`/ProfileUser/${post.Comments[0].User._id}`" class="link_user">
+                            <img :src="post.Comments[0].User.attachment" :alt="'Photo de profil de ' + `${post.Comments[0].User.firstName}`">
+                        </router-link>
                     </div>
                     <div class="comment_content">
                         <div class="comment_reactions_length" v-if="post.Comments[0].CommentReactions">{{ post.Comments[0].CommentReactions.length }} 
@@ -65,7 +73,9 @@
                         </div>
 
                         <div class="comment_bubble" v-if="!inputComment">
-                            <span class="comment_username bold">{{post.Comments[0].User.firstName}} {{post.Comments[0].User.lastName}}</span>
+                            <router-link :to="`/ProfileUser/${post.Comments[0].User._id}`" class="link_user">
+                                <span class="comment_username bold">{{post.Comments[0].User.firstName}} {{post.Comments[0].User.lastName}}</span>
+                            </router-link>
                             <p class="comment_text">{{post.Comments[0].text}}</p>
                         </div>
 
@@ -84,10 +94,10 @@
                         <button v-if="previewImageUpdate" type="button" class="img_option_btn" @click="previewImageUpdate = !previewImageUpdate">Retirer</button>
                         <br v-if="post.Comments[0].attachment" />
 
-                        <Reactions :likeName="'lastcomment'" :userId="userInfos._id" :postId="posts[i]._id" :commentId="posts[i].Comments[0]._id" :postIndex="i" :objectIndex="0" :reactions="posts[i].Comments[0].CommentReactions" :handleReaction="handleCommentReaction"></Reactions>
+                        <Reactions :likeName="'lastcomment'" :userId="userInfos._id" :postId="postsArray[i]._id" :commentId="postsArray[i].Comments[0]._id" :postIndex="i" :objectIndex="0" :reactions="postsArray[i].Comments[0].CommentReactions" :handleReaction="handleCommentReaction"></Reactions>
                     </div>
 
-                    <Toggle :user="userInfos" :objectToHandle="posts[i].Comments[0]" @display="displayInputComment" @check="checkDeleteComment"></Toggle>
+                    <Toggle :user="userInfos" :objectToHandle="postsArray[i].Comments[0]" @display="displayInputComment" @check="checkDeleteComment"></Toggle>
                     <div class="delete_comment" v-if="checkDelete">
                         <p class="bold">En êtes-vous sûr ?</p>
                         <button type="button" @click="deleteComment(post._id, post.Comments[0]._id)">Oui</button>
@@ -97,14 +107,18 @@
 
                 <div class="hide" :class="{'show_comments' : i === activeComments && index > 0}" v-for="(comment, index) in post.Comments" :key="comment._id">  
                     <div class="comment_user_picture">
-                        <img :src="comment.User.attachment" :alt="'Photo de profil de ' + `${comment.User.firstName}`">
+                        <router-link :to="`/ProfileUser/${comment.User._id}`" class="link_user">
+                            <img :src="comment.User.attachment" :alt="'Photo de profil de ' + `${comment.User.firstName}`">
+                        </router-link>
                     </div>
                     <div class="comment_content">
                         <div class="comment_reactions_length" v-if="post.Comments[index].CommentReactions">{{ post.Comments[index].CommentReactions.length }} 
                             <span class="comment_reactions_length1">❤️</span><span class="comment_reactions_length2">😂</span><span class="comment_reactions_length3">👏</span><span class="comment_reactions_length4">😢</span><span class="comment_reactions_length5">😡</span>
                         </div>
                         <div v-if="!inputComment[index]" class="comment_bubble">
-                            <span class="comment_username bold">{{comment.User.firstName}} {{comment.User.lastName}}</span>
+                            <router-link :to="`/ProfileUser/${comment.User._id}`" class="link_user">
+                                <span class="comment_username bold">{{comment.User.firstName}} {{comment.User.lastName}}</span>
+                            </router-link>
                             <p class="comment_text">{{comment.text}}</p>
                         </div>
                         <div v-else class="update_input">
@@ -119,7 +133,7 @@
                         <button v-if="previewImageUpdate" type="button" class="img_option_btn" @click="previewImageUpdate = !previewImageUpdate">Retirer</button>
                         <br v-if="comment.attachment" />
 
-                        <Reactions :likeName="'comments'" :userId="userInfos._id" :postId="posts[i]._id" :commentId="posts[i].Comments[index]._id" :postIndex="i" :objectIndex="index" :reactions="posts[i].Comments[index].CommentReactions" :handleReaction="handleCommentReaction"></Reactions>
+                        <Reactions :likeName="'comments'" :userId="userInfos._id" :postId="postsArray[i]._id" :commentId="postsArray[i].Comments[index]._id" :postIndex="i" :objectIndex="index" :reactions="postsArray[i].Comments[index].CommentReactions" :handleReaction="handleCommentReaction"></Reactions>
                         
                         <div v-if="index == (post.Comments.length - 1)" class="hide_comments--option" @click="hideComments">Cacher les commentaires</div>
                     </div> 
@@ -168,15 +182,18 @@ export default {
             },
         }
     },
+    props: {
+        postsArray: {
+            type:Array
+        }
+    },
     mounted: function () {
-        this.$store.dispatch('getAllPosts');
         this.$store.dispatch('getUserInfos');
     },
     computed: {
         ...mapState({
             status: 'status',
             user: 'user',
-            posts: ['posts'],
             userInfos: 'userInfos'
         })
     },
@@ -290,6 +307,9 @@ export default {
     border-radius: 15px;
     margin-bottom: 1em;
     position: relative;
+    box-shadow: inset 1px 1px 6px rgba(8, 8, 58, 0.856),
+                inset -1px -1px 6px rgba(8, 8, 58, 0.856),
+                -1px 1px rgb(206, 206, 206);
 }
 .infos_user_post {
     margin-top: 1em;
@@ -316,8 +336,9 @@ export default {
     margin-left: 1em;
 }
 .img_post {
-    width: 100%;
+    width: 98%;
     height: 20em;
+    margin-left: 1%;
     object-fit: cover;
 }
 .post_reactions_info {
@@ -562,6 +583,10 @@ export default {
     position: absolute;
     left: 60px;
     z-index: 10;
+}
+.link_user {
+    color: black;
+    text-decoration: none;
 }
 
 </style>

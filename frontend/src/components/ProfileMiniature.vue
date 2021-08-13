@@ -2,9 +2,11 @@
     <div class="profile_miniature">
         <h1>Votre profil</h1>
         <div class="user_infos">
-            <div class="img_border">
-                <img class="profile_picture" :src="userInfos.attachment" :alt="'photo de profil de ' + `${userInfos.firstName}`">
-            </div>
+            <router-link :to="`/ProfileUser/${userInfos._id}`">
+                <div class="img_border">
+                        <img class="profile_picture" :src="userInfos.attachment" :alt="'photo de profil de ' + `${userInfos.firstName}`">
+                </div>
+            </router-link>
             <div class="username bold">
                 {{userInfos.firstName}} {{userInfos.lastName}}
             </div>
@@ -14,7 +16,9 @@
             </div>
         </div>
         <div class="options">
-            <span class="handle_profile">Voir/Gérer mon profil</span>
+            <router-link :to="`/ProfileUser/${userInfos._id}`" class="link_user">
+                <span class="handle_profile">Voir/Gérer mon profil</span>
+            </router-link>
             <span class="logout" @click="logout">Se déconnecter</span>
         </div>
     </div> 
@@ -57,8 +61,8 @@ export default {
     align-items: center;
     position: fixed;
     z-index: 999;
-    box-shadow: inset 1px 1px 6px rgba(0, 0, 0, 0.459),
-                inset -1px -1px 6px rgba(0, 0, 0, 0.459),
+    box-shadow: inset 1px 1px 6px rgba(8, 8, 58, 0.856),
+                inset -1px -1px 6px rgba(8, 8, 58, 0.856),
                 -1px 1px rgb(206, 206, 206);
     transition: .3s;
 }
@@ -104,5 +108,8 @@ export default {
 .options span:hover {
     color: rgb(255, 57, 57);
 }
-
+.link_user {
+    margin-bottom: 1em;
+    color: black;
+}
 </style>

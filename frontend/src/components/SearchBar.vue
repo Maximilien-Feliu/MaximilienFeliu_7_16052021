@@ -3,7 +3,7 @@
         <button type="button" class="btn_search"><i class="fas fa-search"></i></button>
         <input type="text" v-model="target" @input="filteredUsers" name="search_bar" id="search_bar" placeholder="Rechercher dans Groupomania">
         <div v-if="target != ''" class="filter">
-            <router-link to="/" v-for="user in users" :key="user"><li><img :src="user.attachment" class="profile_picture" :alt="'Photo de profil de ' + `${user.firstName}`"/> {{user.firstName}} {{user.lastName}}<div class="border_bottom"></div></li></router-link>
+            <router-link :to="`/ProfileUser/${user._id}`" v-for="user in users" :key="user"><li><img :src="user.attachment" class="profile_picture" :alt="'Photo de profil de ' + `${user.firstName}`"/> {{user.firstName}} {{user.lastName}}<div class="border_bottom"></div></li></router-link>
         </div>
     </div>
 </template>

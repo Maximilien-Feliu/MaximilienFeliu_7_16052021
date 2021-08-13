@@ -4,6 +4,7 @@ import Login from '../views/Login.vue'
 import CompleteProfile from '../views/CompleteProfile.vue'
 import TimelinePage from '../views/TimelinePage.vue'
 import NotFound from '../views/NotFound.vue'
+import ProfileUser from '../views/ProfileUser.vue'
 
 const routes = [
   {
@@ -19,7 +20,7 @@ const routes = [
     name: 'CompleteProfile',
     component: CompleteProfile,
     meta: {
-      title: 'Groupomania - Profile to complete'
+      title: 'Groupomania - Profile à compléter'
     }
   },
   {
@@ -28,6 +29,14 @@ const routes = [
     component: TimelinePage,
     meta: {
       title: 'Groupomania'
+    }
+  },
+  {
+    path: '/ProfileUser/:userId',
+    name: 'ProfileUser',
+    component: ProfileUser,
+    meta: {
+      title: 'Groupomania - Profil utilisateur'
     }
   },
   {

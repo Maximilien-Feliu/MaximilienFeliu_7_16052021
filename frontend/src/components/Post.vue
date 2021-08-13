@@ -2,7 +2,9 @@
     <div class="post" @click="inputShorter">
         <form action="#">
             <div class="img_post_text">
-                <img class="profile_picture" :src="userInfos.attachment" :alt="'Photo de profil de ' + `${userInfos.firstName}`">
+                <router-link :to="`/ProfileUser/${userInfos._id}`">
+                    <img class="profile_picture" :src="userInfos.attachment" :alt="'Photo de profil de ' + `${userInfos.firstName}`">
+                </router-link>
                 <div class="post_area">
                     <label for="post_text" id="whatsup">Quoi de neuf, {{userInfos.firstName}} ?</label>
                     <textarea name="post_text" id="post_text" v-model="postText" placeholder="Écrivez quelque chose..." @click="growUp"></textarea>
@@ -65,12 +67,12 @@ export default {
             if(this.postText != '') {
                 formData.append('text', this.postText);
             }
-
             this.$store.dispatch('createPost', formData)
             .then(() => {
                 window.location.reload();
             })
-            .catch(() => {
+            .catch((error) => {
+                console.log(error);
                 if (this.status == 'error_regex') {
                     alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !')
                 

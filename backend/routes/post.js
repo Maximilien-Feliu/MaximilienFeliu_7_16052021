@@ -8,9 +8,10 @@ const regExp = require('../middleware/regExp');                                 
 const router = express.Router();
 
 router.get('/', auth, postCtrl.getAllPosts);
+router.get('/user/:id', auth, postCtrl.getAllPostsByUserId);
 router.post('/', auth, regExp.postOrComment, multer, postCtrl.createPost);
 router.put('/:id', auth, regExp.postOrComment, multer, postCtrl.updatePost);
 router.get('/:id', auth, postCtrl.getOnePost);
-router.delete('/:id', auth, postCtrl.deletePost);
+router.delete('/:id', auth, postCtrl.deletePost); 
 
 module.exports = router; 
