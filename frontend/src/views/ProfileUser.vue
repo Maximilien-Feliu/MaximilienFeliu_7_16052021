@@ -2,23 +2,42 @@
     <div class="profile_user">
         <div class="header_search_bar">
             <Header />
-            <SearchBar class="main_search_bar"/>
+            <SearchBar class="main_search_bar"/> 
+            <ProfileToggle :user="userInfos"/>
         </div>
+        
         <div class="main_container">
+            <div class="search_bar_responsive">
+                <SearchBar />
+            </div>
             <div class="main_user_infos">
-                <div class="user_profile_picture" :class="{'user_profile_picture_update' : update}">
+
+        <!-- responsive button options -->
+                <div v-if="userInfos._id === profileUser._id || userInfos.isAdmin === 1" class="user_options_responsive">
+                    <button v-if="userInfos._id === profileUser._id" @click="updateUser = !updateUser">Modifier mon profil</button>
+                    <button v-if="userInfos._id === profileUser._id || userInfos.isAdmin === 1" @click="deleteUser = !deleteUser">Supprimer le compte</button>
+                </div>
+        <!-- fin responsive button options -->
+
+                <div class="user_profile_picture" :class="{'user_profile_picture_update' : updateUser}">
                     <img class="profile_picture" :src="previewImage || profileUser.attachment" :alt="'photo de profil de ' + `${profileUser.firstName}`">
                 </div>
-                <div v-if="update" class="img_user_option">         
+
+        <!-- update profile picture -->
+                <div v-if="updateUser" class="img_user_option">         
                     <label for="'img_user_update" class="img_user_update"><i class="fas fa-images"></i>Modifier la photo</label>
                     <button type="button" class="btn_img_user_option" :class="{'hide' : !previewImage}" @click="previewImage = !previewImage">Retirer</button>
                     <input type="file" class="hide" name="img_user_update" id="'img_user_update" accept="image/*" @change="uploadImage">
                 </div>
-                <div v-if="!update" class="user_infos">
+        <!-- fin update profile picture -->        
+
+                <div v-if="!updateUser" class="user_infos">
                     <h2 class="user_name">{{ profileUser.firstName }} {{ profileUser.lastName }}</h2>
                     <p class="user_department">Département: {{ profileUser.department }}</p>
                     <p class="user_bio">{{ profileUser.bio }}</p>
                 </div>
+
+        <!-- update user -->        
                 <div v-else class="user_update_infos">
                     <label for="user_update_firstName">Votre Prénom : </label>
                     <input type="text" id="user_update_firstName" v-model="firstName" autofocus>
@@ -35,14 +54,28 @@
                     <button class="btn_update_user_infos" @click="updateProfile">Modifier mes informations</button>
                 </div>
             </div>
-             <div class="main_timeline">
-                <Timeline :postsArray="postsByUserId"/>
+        <!-- fin update user -->    
+
+            <div class="main_timeline">
+                <Post v-if="userInfos._id === profileUser._id" />
+                <Timeline :postsArray="postsByUserId"></Timeline>
             </div>
         </div>
+
         <aside v-if="userInfos._id === profileUser._id || userInfos.isAdmin === 1" class="user_options">
-            <button v-if="userInfos._id === profileUser._id" @click="update = !update">Modifier mon profil</button>
-            <button v-if="userInfos._id === profileUser._id || userInfos.isAdmin === 1" @click="deleteUser">Supprimer le compte</button>
+            <button v-if="userInfos._id === profileUser._id" @click="updateUser = !updateUser">Modifier mon profil</button>
+            <button v-if="userInfos._id === profileUser._id || userInfos.isAdmin === 1" @click="deleteUser = !deleteUser">Supprimer le compte</button>
         </aside>
+        <div v-if="deleteUser" class="post_modal_overlay" @click="deleteUser = !deleteUser"></div>
+                    <div class="check_delete_container">
+                        <div v-if="deleteUser" class="check_delete">
+                        <h2 class="bold">Etes vous sûr de vouloir supprimer ce compte ?</h2>
+                        <div class="btn_check_container">
+                            <button type="button" class="btn_check" @click="deleteProfile">Oui</button>
+                            <button type="button" class="btn_check" @click="deleteUser = !deleteUser">Non</button>
+                        </div>
+                    </div>
+                </div>
         <Footer />
     </div>
 </template>
@@ -53,6 +86,9 @@ import Header from '@/components/Header.vue'
 import Footer from '@/components/Footer.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import Timeline from '@/components/Timeline.vue'
+import Post from '@/components/Post.vue'
+import ProfileToggle from '@/components/ProfileToggle.vue'
+import Toggle from '@/components/Toggle.vue'
 
 export default {
     name: 'ProfileUser',
@@ -60,12 +96,15 @@ export default {
         Header,
         Footer,
         SearchBar,
-        Timeline
+        Timeline,
+        Post,
+        ProfileToggle,
+        Toggle
     },
     data () {
         return {
-            update: false,
-            delete: false,
+            updateUser: false,
+            deleteUser: false,
             previewImage: '',
             firstName: '',
             lastName: '',
@@ -105,16 +144,16 @@ export default {
             if(this.files != undefined) {
                 formData.append('attachment', this.files);
             }
-            if(this.firstName != null || this.firstName != '') {
+            if(this.firstName != '') {
                 formData.append('firstName', this.firstName);
             }
-            if(this.lastName != null || this.lastName != '') {
+            if(this.lastName != '') {
                 formData.append('lastName', this.lastName);
             }
-            if(this.department != null || this.department != '') {
+            if(this.department != '') {
                 formData.append('department', this.department);
             }
-            if(this.bio != null || this.bio != '') {
+            if(this.bio != '') {
                 formData.append('bio', this.bio);
             }
 
@@ -134,11 +173,11 @@ export default {
                 }
             })
         },
-        deleteUser () {
+        deleteProfile () {
             this.$store.dispatch('deleteUser');
             localStorage.removeItem('user');
             window.location.reload();
-        }
+        },
     }
 }
 </script>
@@ -146,10 +185,6 @@ export default {
 <style scoped>
 Header {
     position: fixed;
-}
-.profile_user {
-    background: url('../assets/building_background.jpg') fixed no-repeat center;
-    background-size: cover;
 }
 .header_search_bar {
     position: fixed;
@@ -189,6 +224,7 @@ Header {
     border: 3px solid rgb(8, 8, 58);
     margin-top: 1em;
     margin-bottom: 0px;
+    margin-left: 15px;
 }
 .profile_picture {
     width: 150px;
@@ -205,11 +241,13 @@ Header {
 }
 .user_bio {
     width: 90%;
+    margin-left: 5%;
 }
 .main_timeline {
     position: relative;
     z-index: 500;
     width: 50%;
+    margin-top: 1em;
 }
 .user_options {
     position: absolute;
@@ -231,7 +269,7 @@ Header {
     width: 70%;
     cursor: pointer;
     margin-top: 1em;
-    width: 170px;
+    width: 95%;
     height: 30px;
     border-radius: 5px;
     transform: .3s;
@@ -298,5 +336,63 @@ Header {
     border-radius: 5px;
     margin-bottom: 2em;
     transition: .3s;
+}
+.search_bar_responsive, .user_options_responsive {
+    display: none;
+}
+.post_modal_overlay {
+    z-index: 990;
+}
+.check_delete_container {
+    position: fixed;
+    z-index: 995;
+}
+@media screen and (max-width: 1024px) {
+    .main_timeline, .main_user_infos {
+        width: 95%;
+    }
+    .user_options {
+        display: none;
+    }
+    .user_profile_picture, .profile_picture {
+        width: 100px;
+        height: 100px;
+    }
+    .user_options_responsive {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        margin-top: .5em;
+    }
+    .user_options_responsive button { 
+        background-color: transparent;
+        border: none;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+    .user_options_responsive button:hover { 
+        color: rgb(255, 57, 57);
+    } 
+}
+@media screen and (max-width: 768px) {
+    .main_timeline, .main_user_infos {
+        width: 100%;
+        border-radius: inherit;
+    }
+    .main_search_bar {
+        display: none;
+    }
+    .search_bar_responsive {
+        display: block;
+        width: 100%;
+        margin-top: 6em;
+    }
+    .user_profile_picture, .profile_picture {
+        width: 80px;
+        height: 80px;
+    }
+    .main_user_infos {
+        margin-top: 0;
+    }
 }
 </style>

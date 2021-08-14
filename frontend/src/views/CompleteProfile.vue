@@ -116,10 +116,6 @@ export default {
 </script>
 
 <style scoped>
-.complete_profile_page {
-    background: url('../assets/building_background.jpg') fixed no-repeat center;
-    background-size: cover;
-}
 .main_container {
     display: flex;
     justify-content: center;
@@ -228,5 +224,33 @@ a:hover {
     to {
         transform: scale(1);
     }
+}
+@media screen and (max-width: 768px) {
+  #profile_bio {
+      width: 80%;
+  }
+  .main {
+      width: 90%;
+  }
+  .img_border, img {
+    width: 100px;
+    height: 100px;
+  }
+  .btn_complete {
+    width: 200px;
+  }
+  .submit_choice {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+  }
+  a {
+      position: relative;
+      right: 0;
+      bottom: 0;
+  }
+  .btn_file {
+      width: 100px;
+  }
 }
 </style>

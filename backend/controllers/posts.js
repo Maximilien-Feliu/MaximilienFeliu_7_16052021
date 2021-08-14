@@ -45,7 +45,7 @@ exports.updatePost = (req, res) => {
                     attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
                 }
                 
-                post.update(postObject, {
+                post.update(postObject, { 
                     where: { 
                         _id: req.params.id
                     }

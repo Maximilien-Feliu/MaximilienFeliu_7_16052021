@@ -2,15 +2,17 @@
     <div class="post" @click="inputShorter">
         <form action="#">
             <div class="img_post_text">
-                <router-link :to="`/ProfileUser/${userInfos._id}`">
-                    <img class="profile_picture" :src="userInfos.attachment" :alt="'Photo de profil de ' + `${userInfos.firstName}`">
-                </router-link>
+                <div>
+                    <router-link :to="`/ProfileUser/${userInfos._id}`">
+                        <img class="profile_picture" :src="userInfos.attachment" :alt="'Photo de profil de ' + `${userInfos.firstName}`">
+                    </router-link>
+                </div>
                 <div class="post_area">
                     <label for="post_text" id="whatsup">Quoi de neuf, {{userInfos.firstName}} ?</label>
                     <textarea name="post_text" id="post_text" v-model="postText" placeholder="Écrivez quelque chose..." @click="growUp"></textarea>
-                    <label for="post_file" id="btn_post_file"><i class="fas fa-images"></i>Photo/Video</label>
+                    <label for="post_file" id="btn_post_file"><i class="fas fa-images"></i>Image</label>
 
-                    <Emojis class="emojis_post" @append="updateInput"></Emojis>
+                        <Emojis class="emojis_post" @append="updateInput"></Emojis>
 
                     <div class="img_option">
                         <img id="preview_img" :class="{'hide' : !previewImage}" :src="previewImage" :alt="'Aperçu de l\'image du post de ' + `${userInfos.firstName}`">
@@ -108,23 +110,24 @@ export default {
 .post {
     background-color: white;
     border-radius: 15px;
-    margin-top: 5em;
 }
 .post form {
     display: flex;
     flex-direction: column;
+    align-items: center;
 }
 .img_post_text {
     display: flex;
     align-items: center;
+    width: 100%;
+    justify-content: space-around;
     margin-top: 1em;
-    margin-left: 4em;
 }
 .post_area {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-left: 8.5em;
+    width: 70%;
     margin-top: 1em;
     position: relative;
 }
@@ -138,7 +141,7 @@ export default {
     font-weight: bold;
 }
 textarea {
-    width: 190%;
+    width: 100%;
     height: 4em;
     margin-top: 1em;
     box-shadow: inset 2px 2px rgba(0, 0, 0, 0.459),
@@ -162,7 +165,7 @@ textarea:hover {
     cursor: pointer;
     border: 1px solid grey; 
     margin-top: 5px;
-    width: 130px;
+    width: 100px;
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -178,7 +181,7 @@ i {
 .emojis_post {
     position: absolute;
     bottom: 4.8em;
-    right: -5.5em;
+    right: -.5em;
 }
 #btn_post {
     cursor: pointer;
@@ -220,9 +223,48 @@ i {
     transition: .3s;
     position: absolute;
     top: 9em;
-    right: -6em;
+    right: 0;
 }
 #btn_preview_image:hover {
     background-color: rgba(8, 8, 58, 0.534);
+}
+@media screen and (max-width: 1200px) {
+    .profile_picture {
+        width: 130px;
+        height: 130px;
+    }
+}
+@media screen and (max-width: 1024px) {
+    .profile_picture {
+        width: 100px;
+        height: 100px;
+    }
+    .emojis_post {
+        display: none;
+    }
+}
+@media screen and (max-width: 768px) {
+    .post {
+        font-size: smaller;
+        margin-top: 0;
+        border-radius: inherit;
+    }
+    .profile_picture {
+        width: 80px;
+        height: 80px;
+    }
+    #btn_post {
+        width: 130px;
+        height: 20px;
+    }
+    #btn_post_file {
+        width: 60px;
+    }
+}
+@media screen and (max-width: 435px) {
+    .profile_picture {
+        width: 50px;
+        height: 50px;
+    }
 }
 </style>

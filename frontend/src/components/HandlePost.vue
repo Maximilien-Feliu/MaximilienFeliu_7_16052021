@@ -1,22 +1,8 @@
 <template>
     <div class="handle_post">
-        <button class="handle_post_toggle" @click="handlePostToggle = !handlePostToggle">
-            <i class="fas fa-ellipsis-h"></i>
-        </button>
-        <ul class="hide" :class="{'show_toggle' : handlePostToggle}">
-            <li @click="displayPost = !displayPost; handlePostToggle = !handlePostToggle" class="li_update" v-if="user.isAdmin === 1 || user._id == postToHandle.UserId">
-                <i class="fas fa-pen"></i>
-                Modifier
-            </li>
-            <li @click="checkDelete = !checkDelete; handlePostToggle = !handlePostToggle" class="li_delete" v-if="user.isAdmin === 1 || user._id == postToHandle.UserId">
-                <i class="fas fa-trash"></i>
-                Supprimer
-            </li>
-            <li class="li_report">
-                <i class="far fa-flag"></i>
-                Signaler
-            </li>
-        </ul>
+        
+        <Toggle :user="user" :objectToHandle="postToHandle" :update="displayPost" :delete="checkDelete" @display="displayUpdatePost" @check="checkDeletePost"></Toggle>
+
 
         <div v-if="displayPost || checkDelete" class="post_modal_overlay" @click="displayModal"></div>
 
@@ -36,8 +22,8 @@
 
                 <img v-if="postToHandle.attachment || previewImage" class="img_post" :src="previewImage || postToHandle.attachment" :alt="'attachement relié à la publication de ' + `${postToHandle.User.firstName}`">
                 <div class="img_option_modal">         
-                    <label v-if="postToHandle.attachment" :for="'post_file_modal'+postIndex" class="btn_post_file_modal"><i class="fas fa-images"></i>Modifier la photo</label>
-                    <label v-else :for="'post_file_modal'+postIndex" class="btn_post_file_modal_add"><i class="fas fa-images"></i>Ajouter une photo</label>
+                    <label v-if="postToHandle.attachment" :for="'post_file_modal'+postIndex" class="bold btn_post_file_modal"><i class="fas fa-images"></i>Modifier la photo</label>
+                    <label v-else :for="'post_file_modal'+postIndex" class="bold btn_post_file_modal_add"><i class="fas fa-images"></i>Ajouter une photo</label>
                     <button type="button" class="btn_preview_img_modal" :class="{'hide' : !previewImage}" @click="previewImage = !previewImage">Retirer</button>
                 </div>
 
@@ -47,10 +33,14 @@
                 </button>
             </div>
         </div>
-        <div v-if="checkDelete" class="check_delete">
-            <p class="bold">Etes vous sûr de vouloir supprimer ce post ?</p>
-            <button type="button" class="btn_check" @click="deletePost">Oui</button>
-            <button type="button" class="btn_check" @click="checkDelete = !checkDelete">Non</button>
+        <div class="check_delete_container">
+            <div v-if="checkDelete" class="check_delete">
+                <h2 class="bold">Etes vous sûr de vouloir supprimer ce post ?</h2>
+                <div class="btn_check_container">
+                    <button type="button" class="btn_check" @click="deletePost">Oui</button>
+                    <button type="button" class="btn_check" @click="checkDelete = !checkDelete">Non</button>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -59,11 +49,13 @@
 import { mapState } from 'vuex'
 import moment from 'moment'
 import Emojis from '@/components/Emojis.vue'
+import Toggle from '@/components/Toggle.vue'
 
 export default {
     name: 'HandlePost',
     components: {
-        Emojis
+        Emojis,
+        Toggle
     },
     data () {
         return {
@@ -93,6 +85,12 @@ export default {
     methods: {
         moment (date) {
             return moment(date).format('DD-MM-YYYY [à] hh:mm');
+        },
+        displayUpdatePost (display) {
+            this.displayPost = display;
+        },
+        checkDeletePost (check) {
+            this.checkDelete = check;
         },
         displayModal () {
             if (this.displayPost) {
@@ -128,8 +126,6 @@ export default {
             })
             .catch(() => {
                 console.log(formData)
-                 console.log(this.$store.state.status);
-                 console.log(this.postInput);
                 if (this.status == 'error_regex') {
                     alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !')
                 
@@ -149,68 +145,6 @@ export default {
 </script>
 
 <style>
-.show_toggle {
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    right: -5em;
-    top: 3em;
-    width: 30%;
-    border-radius: 15px;
-    background-color: white;
-    border: 1px solid grey;
-    z-index: 1;
-    margin: 0;
-    padding: 0;
-}
-li {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    list-style-type: none;
-    height: 3em;
-    position: relative;
-    cursor: pointer;
-    margin: 0;
-    transition: .3s;
-}
-li:hover {
-    margin-left: 0px;
-    background-color: rgba(8, 8, 58, 0.856);
-    color: white;
-}
-li i {
-    margin-right: .5em;
-}
-.li_update {
-    border-top-right-radius: 15px;
-    border-top-left-radius: 15px;
-}
-.li_update, .li_delete {
-    border-bottom: 1px solid grey;
-}
-.li_report {
-    border-bottom-right-radius: 15px;
-    border-bottom-left-radius: 15px;
-}
-.handle_post_toggle {
-    position: absolute;
-    cursor: pointer;
-    border: none;
-    background-color: transparent;
-    right: 2em;
-    top: 2em;
-    color: rgb(46, 46, 46);
-    width: 5%;
-    text-align: center;
-    border-radius: 10px;
-    transition: .5s ease-in-out;
-}
-.handle_post_toggle:hover {
-    border: 1px solid rgb(207, 207, 207);
-    background-color: rgb(243, 243, 243);
-}
 .post_modal_overlay {
     position: fixed;
     left: 0;
@@ -219,10 +153,8 @@ li i {
     padding: 0;
     margin: 0;
     height: 100%;
-    z-index: 55;  
-}
-.post_modal_overlay {
     background-color: rgba(8, 8, 58, 0.856);
+    z-index: 55;  
 }
 .post_modal {
     position: fixed;
@@ -309,7 +241,20 @@ li i {
 .btn_preview_img_modal:hover {
     background-color: rgba(8, 8, 58, 0.534);
 }
+.check_delete_container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.check_delete_container h2 {
+    margin-top: 2em;
+}
 .check_delete {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     position: fixed;
     bottom: 50%;
     border-radius: 15px;
@@ -320,25 +265,22 @@ li i {
     transform: scale(1);
     animation: display-modal .5s ease-in-out;
 }
-.check_delete p {
-    font-size: 26px;
-    margin-left: 3em;
-    margin-top: 2em;
+.btn_check_container {
+    width: 30%;
+    display: flex;
+    justify-content: space-between;
 }
-.check_delete button {
+.btn_check {
     cursor: pointer;
     background-color: rgba(8, 8, 58, 0.856);
     color: white;
-    width: 10%;
-    height: 15%;
-    margin-left: 14.5em;
+    width: 50px;
+    height: 30px;
     margin-top: 3em;
     border-radius: 5px;
     transition: .3s;
-    margin-right: 2em;
-    top: 9em;
 }
-.check_delete button:hover {
+.btn_check:hover {
     background-color: rgba(8, 8, 58, 0.534);
 }
 @keyframes display-modal {
@@ -347,6 +289,44 @@ li i {
     }
     to {
         transform: scale(1);
+    }
+}
+@media screen and (max-width: 1024px) {
+    .post_modal {
+        width: 95%;
+    }
+    .emojis_post_modal {
+        display: none;
+    }
+    .check_delete_container h2 {
+        font-size: 20px;
+        text-align: center;
+    }
+}
+@media screen and (max-width: 768px) {
+    .post_modal {
+        width: 100%;
+    }
+    .btn_post_modal {
+        width: 130px;
+    }
+    .btn_post_file_modal i, .btn_post_file_modal_add i{
+        display: none;
+    }
+    .btn_post_file_modal, .btn_post_file_modal_add {
+        position: absolute;
+        text-align: center;
+    }
+    .check_delete_container h2 {
+        font-size: 16px;
+        text-align: center;
+    }
+    .btn_check_container {
+        width: 100%;
+        justify-content: space-around;
+    }
+    .btn_check {
+        font-size: 14px;
     }
 }
 </style>

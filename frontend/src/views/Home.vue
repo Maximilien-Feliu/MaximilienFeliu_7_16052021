@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <LoginHeader class="responsive_login" />
+    <LoginHeader />
 
     <div id="body">
 
@@ -49,8 +49,6 @@ export default {
 
 <style scoped>
 .home {
-  background: url('../assets/building_background.jpg') fixed no-repeat center;
-  background-size: cover;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -103,7 +101,16 @@ section {
     flex-direction: column-reverse;
   }
   #hello {
-    width: 100%;
+    width: 99%;
+    font-size: 14px;
+  }
+  #hello p {
+    margin-left: 1em;
+  }
+}
+@media screen and (max-width: 435px) {
+  h1 {
+    font-size: 24px;
   }
 }
 </style>

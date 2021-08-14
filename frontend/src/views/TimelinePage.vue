@@ -3,11 +3,15 @@
         <div class="header_search_bar">
             <Header />
             <SearchBar class="main_search_bar"/>
+            <ProfileToggle :user="userInfos"></ProfileToggle>
         </div>
         <div class="main_container">
             <div class="main_timeline">
+                <div class="search_bar_responsive">
+                    <SearchBar class="main_search_bar_responsive"/>
+                </div>
                 <Post />
-                <Timeline :postsArray="posts"/>
+                <Timeline :postsArray="posts"></Timeline>
             </div>
             <aside>
                 <ProfileMiniature class="main_miniature"/>
@@ -25,6 +29,7 @@ import SearchBar from '@/components/SearchBar.vue'
 import Post from '@/components/Post.vue'
 import Timeline from '@/components/Timeline.vue'
 import ProfileMiniature from '@/components/ProfileMiniature.vue'
+import ProfileToggle from '@/components/ProfileToggle.vue'
 
 export default {
     name: 'TimelinePage',
@@ -34,7 +39,8 @@ export default {
         SearchBar,
         Post,
         Timeline,
-        ProfileMiniature
+        ProfileMiniature,
+        ProfileToggle
     },
     mounted: function () { 
         if (this.$store.state.user.userId == -1) {
@@ -42,6 +48,7 @@ export default {
             return;
         }
         this.$store.dispatch('getAllPosts');
+        this.$store.dispatch('getUserInfos');
     },
     computed: {
         ...mapState({
@@ -58,10 +65,6 @@ export default {
 Header {
     position: fixed;
 }
-.complete_timeline_page {
-    background: url('../assets/building_background.jpg') fixed no-repeat center;
-    background-size: cover;
-}
 .header_search_bar {
     position: fixed;
     z-index: 998;
@@ -71,6 +74,9 @@ Header {
     top: 15px;
     position: fixed;
     z-index: 999;
+}
+.search_bar_responsive {
+    display: none;
 }
 .main_miniature {
     z-index: 2;
@@ -83,5 +89,23 @@ Header {
     position: relative;
     z-index: 500;
     width: 50%;
+    margin-top: 5em;
+}
+@media screen and (max-width: 1024px) {
+    .main_timeline {
+        width: 95%;
+    }
+}
+@media screen and (max-width: 768px) {
+    .main_timeline {
+        width: 100%;
+    }
+    .main_search_bar {
+        display: none;
+    }
+    .search_bar_responsive {
+        display: block;
+        margin-top: 1em;
+    }
 }
 </style>

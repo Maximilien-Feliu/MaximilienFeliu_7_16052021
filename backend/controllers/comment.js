@@ -9,7 +9,7 @@ exports.createComment = (req, res) => {
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
     if (req.body.text || req.file) {
-        return models.Comment.create({
+        return models.Comment.create({ 
             text: req.body.text,
             attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
             UserId: userId,
@@ -25,7 +25,6 @@ exports.updateComment = (req, res) => {
     const token = req.headers.authorization.split(' ')[1];                  // get the token in the authotization header (2nd in the array)
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
-    const admin = decodedToken.isAdmin;
 
     req.file ? (
         models.Comment.findOne({
@@ -62,6 +61,9 @@ exports.updateComment = (req, res) => {
                     }
                 )
             } else {
+                const filename = req.file.filename;                             
+                fs.unlinkSync(`images/${filename}`);
+                
                 res.status(400).json({ message: "not allowed to update"});
             }
         })

@@ -44,7 +44,7 @@
 
           <div class="input_error_signup" v-if="status == 'error_regex'" >Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !</div>
           <div class="button_info">
-            <button @click.prevent="createAccount" type="submit" :class="{'button--disabled' : !validatedFields}" >
+            <button @click.prevent="createAccount" type="submit" class="btn_signup" :class="{'button--disabled' : !validatedFields}" >
               <span class="bold" v-if="status == 'loading'">Inscription...</span>
               <span class="bold" v-else>S'inscrire</span>
             </button> 
@@ -240,17 +240,38 @@ button:hover {
   transition: .3s;
   cursor: pointer;
 }
+@media screen and (max-width: 1024px) {
+  #signup {
+    padding-left: 0;
+  }
+  input {
+    width: 40%;
+  }
+}
 @media screen and (max-width: 768px) {
   #signup {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 0;
     margin-left: 0;
+  }
+  #signup_form {
+    margin: 0;
+    margin-bottom: 1em;
   }
   input {
     width: 80%;
   }
   .input_error_container_signup, .button_info {
     flex-direction: column;
+  }
+  h2 {
+    margin-left: 0px;
+  }
+  .btn_signup {
+    margin-left: 23%;
   }
 }
 </style>

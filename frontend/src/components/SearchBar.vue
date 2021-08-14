@@ -1,8 +1,14 @@
 <template>
     <div class="search">
-        <input type="text" v-model="target" @input="filteredUsers" name="search_bar" id="search_bar" placeholder="Rechercher dans Groupomania">
+        <input type="text" v-model="target" @input="filteredUsers" name="search_bar" class="search_bar" placeholder="Rechercher dans Groupomania">
         <div v-if="target != ''" class="filter">
-            <router-link :to="`/ProfileUser/${user._id}`" v-for="user in users" :key="user"><li><img :src="user.attachment" class="profile_picture" :alt="'Photo de profil de ' + `${user.firstName}`"/> {{user.firstName}} {{user.lastName}}<div class="border_bottom"></div></li></router-link>
+            <router-link :to="`/ProfileUser/${user._id}`" v-for="user in users" :key="user">
+                <li>
+                    <img :src="user.attachment" class="profile_picture" :alt="'Photo de profil de ' + `${user.firstName}`"/> {{user.firstName}} {{user.lastName}}
+                    <div class="border_bottom">
+                    </div>
+                </li>
+            </router-link>
         </div>
     </div>
 </template>
@@ -32,19 +38,7 @@ export default {
 </script>
 
 <style scoped>
-.btn_search {
-    cursor: pointer;
-    position: absolute;
-    color: grey;
-    right: -10em;
-    top: 9px;
-    border: none;
-    background-color: transparent;
-}
-.btn_search i {
-    font-size: 20px;
-}
-#search_bar {
+.search_bar {
    width: 180%; 
    height: 2.5em;
    border-radius: 15px;
@@ -90,5 +84,21 @@ li:hover {
 }
 a {
     text-decoration: none;
+}
+@media screen and (max-width: 768px) {
+    .search_bar {
+        width: 100%;
+        margin-bottom: 1em;
+        border-radius: inherit;
+    }
+    .filter {
+        width: 100%;
+        margin: 0;
+        border-radius: 0px;
+    }
+    li:hover {
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
 }
 </style>

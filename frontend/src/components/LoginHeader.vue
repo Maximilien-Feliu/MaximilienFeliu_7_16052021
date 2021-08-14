@@ -1,10 +1,12 @@
 <template>
     <div id="header">
+      <div>
       <img class="logo" alt="Groupomania logo" src="../assets/icon-left-font-monochrome-white-modif.png">
+      </div>
 
-      <LoginComponent />
+      <LoginComponent id="login_header_form"/>
 
-      <button class="btn_login btn_login_responsive" @click="goToLogin">Se connecter</button>
+      <button class="btn_login_responsive" @click="goToLogin">Se connecter</button>
     </div>
 </template>
 
@@ -31,53 +33,57 @@ export default {
   background-color: rgba(8, 8, 58, 0.699);
   height: 70px;
   width: 97%;
-  flex-wrap: wrap;
 }
 .logo{
-  width: 23%;
+  width: 100%;
   height: 60px;
-  padding: 0px;
   margin-left: 15px;
   margin-top: 5px;
 }
-#login{
-  width: 50%;
-  margin-right: 15px;
-  font-weight: bold;
-  color: white;
+#login_header_form .login_form {
   display: flex;
-  align-items: center;
-}
-#login_form {
-  display: flex;
-  justify-content: space-between;
+  flex-direction: row;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   width: 100%;
+  margin-top: 10px;
 }
-.input_error {
+#login_header_form label {
+  color: white;
+  font-weight: bold;
+}
+#login_header_form .input_container {
+  margin-right: 1.5em;
+}
+#login_header_form .input_error {
   position: absolute;
   bottom: -5;
   left: 0;
   width: 350px;
   color: rgb(255, 57, 57);
 }
-.btn_login {
+#login_header_form .btn_login, .btn_login_responsive {
   border: none; 
+  margin-top: 17px;
   background-color: transparent;
   color: rgb(255, 255, 255);
   text-decoration: underline;
   transition: .3s;
   font-size: 16px;
 }
-.btn_login:hover {
+#login_header_form .btn_login:hover, .btn_login_responsive:hover {
   cursor: pointer;
   color: rgb(255, 57, 57);
   transition: .3s;
 }
+#login_header_form .button--disabled {
+  pointer-events: none;
+}
 .btn_login_responsive {
   display: none;
 }
-@media screen and (max-width: 1100px) {
-  #login {
+@media screen and (max-width: 1024px) {
+  #login_header_form {
     display: none;
   }
   .btn_login_responsive {
@@ -98,7 +104,7 @@ export default {
 }
 @media screen and (max-width: 538px) {
   .btn_login_responsive {
-    top: 12em
+    top: 11em
   }
 }
 </style>

@@ -1,16 +1,20 @@
 <template>  
     <div id="login">
-        <form action="#" id="login_form" >
-          <label for="login_email">Votre Email : </label>
-          <div class="input_error_container">
-            <input type="email" v-model="state.email" id="login_email" maxlength="255" required>
-            <div class="input_error" v-if="v$.email.$error" id="login_error_email">{{ v$.email.$errors[0].$message }}</div>
+        <form action="#" class="login_form" >
+          <div class="input_container">
+            <label for="login_email">Votre Email : </label>
+            <div class="input_error_container">
+              <input type="email" class="input_login" v-model="state.email" id="login_email" maxlength="255" required>
+              <div class="input_error" v-if="v$.email.$error" id="login_error_email">{{ v$.email.$errors[0].$message }}</div>
+            </div>
           </div>
 
-          <label for="login_password">Votre Mot de passe :</label>
-          <div class="input_error_container">
-            <input type="password" v-model="state.password" id="login_password" maxlength="255" autocomplete="on" required>
-            <div class="input_error" v-if="v$.password.$error" id="login_error_password">{{ v$.password.$errors[0].$message }}</div>
+          <div class="input_container">
+            <label for="login_password">Votre Mot de passe :</label>
+            <div class="input_error_container">
+              <input type="password" class="input_login" v-model="state.password" id="login_password" maxlength="255" autocomplete="on" required>
+              <div class="input_error" v-if="v$.password.$error" id="login_error_password">{{ v$.password.$errors[0].$message }}</div>
+            </div>
           </div>
 
           <button class="btn_login" :class="{'button--disabled' : !validatedFields}" type="submit" @click.prevent="login" >
@@ -97,9 +101,7 @@ export default {
 </script>
 
 <style>
-#login_form {
-  display: flex;
-  justify-content: space-between;
+.input_login {
   width: 100%;
 }
 .input_error_container {
@@ -107,19 +109,5 @@ export default {
 }
 .input_error {
   color: rgb(255, 57, 57);
-}
-.button--disabled {
-  pointer-events: none;
-  background-color: rgba(194, 194, 194, 0.589);
-  color: rgba(0, 0, 0, 0.589);
-}
-.btn_login {
-  transition: .3s;
-  font-size: 16px;
-}
-.btn_login:hover {
-  cursor: pointer;
-  color: grey;
-  transition: .3s;
 }
 </style>

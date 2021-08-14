@@ -48,11 +48,11 @@
                     <router-link :to="`/ProfileUser/${post.User._id}`" class="link_user">
                         <img :src="userInfos.attachment" :alt="'photo de profil de ' + `${userInfos.firstName}`">
                     </router-link>
-                    <textarea type="text" :id="'input_comment'+[i]" v-model="commentText[i]" class="input_comment" :data-id="post._id" name="input_comment" placeholder="Écrivez un commentraire..."></textarea>
+                    <textarea type="text" :id="'input_comment'+[i]" v-model="commentText" class="input_comment" :data-id="post._id" name="input_comment" placeholder="Écrivez un commentraire..."></textarea>
                     <label :for="'comment_file'+[i]"><i class="fas fa-images btn_comment_file upload_file"></i></label>
                     <input type="file" name="comment_file" class="hide" :id="'comment_file'+[i]" accept="image/*" @change="uploadImage">
                     
-                    <Emojis @append="updateInputComment" :inputIndex="i"></Emojis>
+                    <Emojis class="emojis_comment" @append="updateInputComment" :inputIndex="i"></Emojis>
 
                     <button class="btn_comment" type="button" @click="comment(post._id)">Commenter</button>
                 </div>
@@ -95,16 +95,20 @@
                         <br v-if="post.Comments[0].attachment" />
 
                         <Reactions :likeName="'lastcomment'" :userId="userInfos._id" :postId="postsArray[i]._id" :commentId="postsArray[i].Comments[0]._id" :postIndex="i" :objectIndex="0" :reactions="postsArray[i].Comments[0].CommentReactions" :handleReaction="handleCommentReaction"></Reactions>
-                    </div>
+                    </div> 
 
-                    <Toggle :user="userInfos" :objectToHandle="postsArray[i].Comments[0]" @display="displayInputComment" @check="checkDeleteComment"></Toggle>
-                    <div class="delete_comment" v-if="checkDelete">
+                    <Toggle class="comment_toggle" :user="userInfos" :objectToHandle="postsArray[i].Comments[0]" :update="inputComment" :delete="checkDeleteUpdateComment" @display="displayInputComment" @check="checkDeleteComment"></Toggle>
+        
+        <!-- delete comment -->
+                    <div class="delete_comment" v-if="checkDeleteUpdateComment">
                         <p class="bold">En êtes-vous sûr ?</p>
                         <button type="button" @click="deleteComment(post._id, post.Comments[0]._id)">Oui</button>
-                        <button type="button" @click="checkDelete = !checkDelete">Non</button>
+                        <button type="button" @click="checkDeleteUpdateComment = !checkDeleteUpdateComment">Non</button>
                     </div>
                 </div>
+        <!-- fin delete comment -->
 
+        <!-- comments list section -->
                 <div class="hide" :class="{'show_comments' : i === activeComments && index > 0}" v-for="(comment, index) in post.Comments" :key="comment._id">  
                     <div class="comment_user_picture">
                         <router-link :to="`/ProfileUser/${comment.User._id}`" class="link_user">
@@ -115,12 +119,17 @@
                         <div class="comment_reactions_length" v-if="post.Comments[index].CommentReactions">{{ post.Comments[index].CommentReactions.length }} 
                             <span class="comment_reactions_length1">❤️</span><span class="comment_reactions_length2">😂</span><span class="comment_reactions_length3">👏</span><span class="comment_reactions_length4">😢</span><span class="comment_reactions_length5">😡</span>
                         </div>
+
+                        <Toggle class="comment_toggle" :user="userInfos" :objectToHandle="postsArray[i].Comments[index]" :update="inputComment" :delete="checkDeleteUpdateComment" @display="displayInputComment" @check="checkDeleteComment"></Toggle>
+
                         <div v-if="!inputComment[index]" class="comment_bubble">
                             <router-link :to="`/ProfileUser/${comment.User._id}`" class="link_user">
                                 <span class="comment_username bold">{{comment.User.firstName}} {{comment.User.lastName}}</span>
                             </router-link>
                             <p class="comment_text">{{comment.text}}</p>
                         </div>
+
+        <!-- update comments list -->                
                         <div v-else class="update_input">
                             <textarea type="text" class="input_update_comment" name="input_update_comment" :id="'input_update_comment'+[i]+[index]" v-model="previousCommentText" autofocus></textarea>
                             <div class="post_update_comment">
@@ -129,6 +138,8 @@
                                 <button class="btn_comment" type="button" @click="updateComment(post._id, post.Comments[index]._id)">Commenter</button>
                             </div>
                         </div>
+        <!-- fin update comments list -->    
+
                         <img v-if="comment.attachment" :src="comment.attachment" :alt="'attachement commentaire de ' + `${comment.User.firstName}`">
                         <button v-if="previewImageUpdate" type="button" class="img_option_btn" @click="previewImageUpdate = !previewImageUpdate">Retirer</button>
                         <br v-if="comment.attachment" />
@@ -138,6 +149,7 @@
                         <div v-if="index == (post.Comments.length - 1)" class="hide_comments--option" @click="hideComments">Cacher les commentaires</div>
                     </div> 
                 </div>
+        <!-- fin comments list -->
             </div>      
         </div>
     </div>
@@ -157,11 +169,11 @@ export default {
         Emojis,
         Reactions,
         HandlePost,
-        Toggle
+        Toggle,
     },
     data () {
         return {
-            commentText: [''],
+            commentText: '',
             emoji: '',
             previewImage: null,
             previewImageUpdate: null,
@@ -169,7 +181,7 @@ export default {
             activeComments: null,
             previousCommentText: '',
             inputComment: false,
-            checkDelete: false,
+            checkDeleteUpdateComment: false,
             handlePostReaction: {
                 add: 'createPostReaction',
                 update: 'updatePostReaction',
@@ -276,18 +288,16 @@ export default {
         hideComments () {
             this.activeComments = null;
         }, 
-        updateInputComment () {
+        updateInputComment (inputEmoji) {
             this.commentText += inputEmoji;
             console.log(inputEmoji)
             console.log(this.commentText)
         },
         displayInputComment (display) {
             this.inputComment = display;
-            console.log(this.inputComment)
         },
         checkDeleteComment (check) {
-            this.checkDelete = check;
-            console.log(this.checkDelete);
+            this.checkDeleteUpdateComment = check;
         }
     }
 }
@@ -296,7 +306,6 @@ export default {
 <style>
 .timeline {
     margin-top: 1em;
-    border-radius: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -349,6 +358,9 @@ export default {
     width: 98%;
     display: flex;
     justify-content: space-between;
+}
+.reaction_total {
+    text-decoration: underline;
 }
 .comments_total, .hide_comments--option {
     text-decoration: underline;
@@ -589,5 +601,20 @@ export default {
     color: black;
     text-decoration: none;
 }
-
+@media screen and (max-width: 1024px) {
+    .emojis_comment {
+        display: none;
+    }
+}
+@media screen and (max-width: 768px) {
+    .timeline {
+        border-radius: 0px;
+    }
+    .post {
+        border-radius: 0px;
+    }
+    .btn_post_react {
+        font-size: smaller;
+    }
+}
 </style>

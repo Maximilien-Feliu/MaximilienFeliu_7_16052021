@@ -53,10 +53,6 @@ export default {
 </script>
 
 <style>
-.login_page {
-  background: url('../assets/building_background.jpg') fixed no-repeat center;
-  background-size: cover;
-}
 .login_main_container {
   display: flex;
   justify-content: center;
@@ -86,7 +82,7 @@ export default {
   align-items: center;
   margin-top: 2em;
 }
-#login_page_form #login_form{
+#login_page_form .login_form{
   height: 70%;
   width: 100%;
   display: flex;
@@ -112,19 +108,20 @@ export default {
   background-color: white;
   color: black;
   text-decoration: inherit;
-  width: 150px;
+  width: 130px;
+  height: 40px;
   border-radius: 5px;
   margin-top: 1em;
-}
-#login_page_form .button--disabled {
-  pointer-events: none;
-  background-color: rgba(194, 194, 194, 0.589);
-  color: rgba(0, 0, 0, 0.589);
 }
 #login_page_form .btn_login:hover {
   cursor: pointer;
   color: grey;
   transition: .3s;
+}
+#login_page_form .button--disabled {
+  pointer-events: none;
+  background-color: rgba(194, 194, 194, 0.589);
+  color: rgba(0, 0, 0, 0.589);
 }
 a {
   color: rgb(255, 255, 255);
@@ -144,6 +141,14 @@ a:hover {
 @media screen and (max-width: 768px) {
   #login_page_form input {
     width: 15em;
+  }
+  .login_main h1 {
+    text-align: center;
+  }
+}
+@media screen and (max-width: 435px) {
+  .login_main h1 {
+    font-size: 20px;
   }
 }
 </style>

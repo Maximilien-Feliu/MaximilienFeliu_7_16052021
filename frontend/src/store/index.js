@@ -127,7 +127,6 @@ export default createStore({
       .then((response) => {
         commit('USER_INFOS', response.data);
         commit('SET_STATUS', 'catched');
-        console.log(response.data)
       })
       .catch(() => {
         commit('SET_STATUS', 'error_user');
@@ -242,7 +241,6 @@ export default createStore({
       instance.delete(`/post/${postInfos.id}`)
       .then(() => {
         commit('SET_STATUS', 'post_deleted');
-        console.log(state.status);
       })
       .catch(() => {
           commit('SET_STATUS', 'error_delete');
@@ -254,7 +252,6 @@ export default createStore({
       .then((response) => {
         commit('SET_STATUS', 'succeed');
         commit('ALL_POSTS', response.data);
-        console.log(response.data)
       })
       .catch(() => {
         commit('SET_STATUS', 'error_posts');
@@ -320,7 +317,6 @@ export default createStore({
       instance.delete(`/post/${commentInfos.postId}/comment/${commentInfos.id}`)
       .then(() => {
         commit('SET_STATUS', 'comment_deleted');
-        console.log(state.status);
       })
       .catch(() => {
           commit('SET_STATUS', 'error_delete');

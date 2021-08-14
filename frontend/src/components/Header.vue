@@ -28,4 +28,9 @@ header {
     width: 300px;
   }
 }
+@media screen and (max-width: 450px) {
+  .logo {
+    width: 250px;
+  }
+}
 </style>

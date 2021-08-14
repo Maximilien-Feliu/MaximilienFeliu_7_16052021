@@ -47,7 +47,6 @@ app.use(rateLimiter);
 
 /***** handle formData *****/
 app.use('/images', express.static(path.join(__dirname, 'images')));       // respond to the request and serve the static folder 'images'
-//app.use(formData.parse());
 
 /*****  middleware to handle POST requests (extract the JSON Object)  
  *****  set a limit of request body size to avoid large request bodies = require( attackers  *****/

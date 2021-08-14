@@ -52,4 +52,9 @@ a i {
     font-size: 40px;
     margin-bottom: .3em;
 }
+@media screen and (max-width: 768px) {
+    footer p {
+        text-align: center;
+    }
+}
 </style>

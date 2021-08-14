@@ -112,4 +112,22 @@ export default {
     margin-bottom: 1em;
     color: black;
 }
+@media screen and (max-width: 1024px) {
+  .profile_miniature {
+    display: none;
+  }
+}
+@media screen and (max-width: 768px) {
+  #login_page_form input {
+    width: 15em;
+  }
+  .login_main h1 {
+    text-align: center;
+  }
+}
+@media screen and (max-width: 435px) {
+  .login_main h1 {
+    font-size: 20px;
+  }
+}
 </style>
