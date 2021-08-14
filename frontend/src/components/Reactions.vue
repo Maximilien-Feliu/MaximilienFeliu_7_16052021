@@ -214,4 +214,9 @@ export default {
 .dark {
     color: black;
 }
+@media screen and (max-width: 1024px) {
+    .reactions {
+        left: 0;
+    }
+}
 </style>

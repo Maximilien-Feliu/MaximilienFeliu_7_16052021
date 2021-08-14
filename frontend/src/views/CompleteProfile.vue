@@ -91,7 +91,7 @@ export default {
                 formData.append('attachment', this.files);
             }
             if(this.bio != null) {
-                formData.append('bio', this.bio);
+                formData.append('bio', this.bio.match(/^[\w-.,\s\n\(\)!'"\?éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/));
             }
 
             this.$store.dispatch('updateProfile', formData) 

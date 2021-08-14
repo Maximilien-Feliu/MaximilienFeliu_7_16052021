@@ -231,7 +231,7 @@ export default {
                 formData.append('attachment', this.files);
             }
             if(this.commentText != '') {
-                formData.append('text', this.commentText);
+                formData.append('text', this.commentText.match(/^[\w-.,\s\n\(\)!'"\?éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/));
             }
             this.$store.dispatch('createComment', {
                 formData,
@@ -252,11 +252,11 @@ export default {
         updateComment (postId, commentId) {  
             const formData = new FormData();
 
-            if(this.files != undefined || this.files != null) {
+            if(this.files != undefined) {
                 formData.append('attachment', this.files);
             }
             if(this.previousCommentText != '') {
-                formData.append('text', this.previousCommentText);
+                formData.append('text', this.previousCommentText.match(/^[\w-.,\s\n\(\)!'"\?éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/));
             }
             this.$store.dispatch('updateComment', {
                 formData,

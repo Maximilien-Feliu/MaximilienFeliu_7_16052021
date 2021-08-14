@@ -145,16 +145,16 @@ export default {
                 formData.append('attachment', this.files);
             }
             if(this.firstName != '') {
-                formData.append('firstName', this.firstName);
+                formData.append('firstName', this.firstName.match(/^[\w-.'éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,100}$/));
             }
             if(this.lastName != '') {
-                formData.append('lastName', this.lastName);
+                formData.append('lastName', this.lastName.match(/^[\w-.'éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,100}$/));
             }
             if(this.department != '') {
-                formData.append('department', this.department);
+                formData.append('department', this.department.match(/^[\w-.,\s\n\(\)!'"\?éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/));
             }
             if(this.bio != '') {
-                formData.append('bio', this.bio);
+                formData.append('bio', this.bio.match(/^[\w-.,\s\n\(\)!'"\?éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/));
             }
 
             this.$store.dispatch('updateProfile', formData) 

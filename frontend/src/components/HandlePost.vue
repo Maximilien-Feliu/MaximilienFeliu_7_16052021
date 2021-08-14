@@ -113,7 +113,7 @@ export default {
                 formData.append('attachment', this.files);
             } 
             if(this.postInput != null) {
-                formData.append('text', this.postInput);
+                formData.append('text', this.postInput.match(/^[\w-.,\s\n\(\)!'"\?éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/));
             }
 
             this.$store.dispatch('updatePost', {
