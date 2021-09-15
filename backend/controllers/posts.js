@@ -1,23 +1,29 @@
 const models = require('../models');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');           // import the token package
-const { sequelize } = require('../models');
 
+const globalRegExp = /^[\w-.,\s\n\(\)!'"\?:+\\éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/;
 
 exports.createPost = (req, res) => {
-    
+
     const token = req.headers.authorization.split(' ')[1];                  // get the token in the authotization header (2nd in the array)
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
-    if (req.body.text || req.file) {
-        return models.Post.create({
-            text: req.body.text,
-            attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
-            UserId: userId
-        })
-        .then(() => res.status(201).json({ message : "post added successfully !"}))
-        .catch(error => res.status(400).json({ error }));
+    if (globalRegExp.test(req.body.text)) {
+        if (req.body.text || req.file) {
+            return models.Post.create({
+                text: req.body.text,
+                attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
+                UserId: userId
+            })
+            .then(() => res.status(201).json({ message : "post added successfully !"}))
+            .catch(error => res.status(400).json({ error }));
+        }
+    } else {
+        res.status(401).json({
+            message: 'Bad Request'
+        });
     }
 } 
 
@@ -35,38 +41,44 @@ exports.updatePost = (req, res) => {
             }
         })
         .then((post) => {
-            if (post.UserId === userId || admin === 1) {
-                const filename = post.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
-                
-                fs.unlinkSync(`images/${filename}`); 
-                
-                let postObject = {
-                    ...req.body, 
-                    attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-                }
-                
-                post.update(postObject, { 
-                    where: { 
-                        _id: req.params.id
+            if (globalRegExp.test(req.body.text)) {
+                if (post.UserId === userId || admin === 1) {
+                    const filename = post.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
+                    
+                    fs.unlinkSync(`images/${filename}`); 
+                    
+                    let postObject = {
+                        ...req.body, 
+                        attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
                     }
-                }
-                )
-                .then(
-                    () => {
-                        res.status(200).json({ message : 'post updated successfully !'}); 
+                    
+                    post.update(postObject, { 
+                        where: { 
+                            _id: req.params.id
+                        }
                     }
-                ).catch(
-                    error => {
-                        res.status(400).json({
-                            error
-                        });
-                    }
-                )
-            } else {
-                const filename = req.file.filename;                             
-                fs.unlinkSync(`images/${filename}`);
+                    )
+                    .then(
+                        () => {
+                            res.status(200).json({ message : 'post updated successfully !'}); 
+                        }
+                    ).catch(
+                        error => {
+                            res.status(400).json({
+                                error
+                            });
+                        }
+                    )
+                } else {
+                    const filename = req.file.filename;                             
+                    fs.unlinkSync(`images/${filename}`);
 
-                res.status(403).json({ message: "not allowed to update"})
+                    res.status(403).json({ message: "not allowed to update"})
+                }
+            } else {
+                res.status(401).json({
+                    message: 'Bad Request'
+                });
             }
         })
         .catch(
@@ -82,25 +94,31 @@ exports.updatePost = (req, res) => {
                 _id: req.params.id
             }
         }).then((post) => {
-            if (post.UserId === userId || admin === 1) {
-                post.update(req.body, {
-                    where: {
-                        _id: req.params.id
-                    }
-                })
-                .then(
-                    () => {
-                        res.status(200).json({ message : 'post updated successfully !'}); 
-                    } 
-                ).catch(
-                    error => {
-                        res.status(400).json({
-                            error
-                        });
-                    }
-                ) 
+            if (globalRegExp.test(req.body.text)) {
+                if (post.UserId === userId || admin === 1) {
+                    post.update(req.body, {
+                        where: {
+                            _id: req.params.id
+                        }
+                    })
+                    .then(
+                        () => {
+                            res.status(200).json({ message : 'post updated successfully !'}); 
+                        } 
+                    ).catch(
+                        error => {
+                            res.status(400).json({
+                                error
+                            });
+                        }
+                    ) 
+                } else {
+                    res.status(400).json({ message: "not allowed to update"})
+                }
             } else {
-                res.status(400).json({ message: "not allowed to update"})
+                res.status(401).json({
+                    message: 'Bad Request'
+                });
             }
         })  
     )
@@ -247,6 +265,12 @@ exports.deletePost = (req, res) => {
         }
     }).then((post) => {
         if (post.UserId === userId || admin === 1) { 
+
+            if(post.attachment != null) {
+                const filename = post.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
+                fs.unlinkSync(`images/${filename}`);
+            } 
+
             post.destroy({
                 where: {
                     _id: req.params.id

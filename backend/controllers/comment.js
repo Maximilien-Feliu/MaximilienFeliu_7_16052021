@@ -2,21 +2,29 @@ const models = require('../models');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');           // import the token package
 
+const globalRegExp = /^[\w-.,\s\n\(\)!'"\?:éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/;
+
 exports.createComment = (req, res) => {
 
     const token = req.headers.authorization.split(' ')[1];                  // get the token in the authotization header (2nd in the array)
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
-    if (req.body.text || req.file) {
-        return models.Comment.create({ 
-            text: req.body.text,
-            attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
-            UserId: userId,
-            PostId: req.params.id
-        })
-        .then(() => res.status(201).json({ message : 'Comment added succesfully !'}))
-        .catch(error => res.status(400).json({ error }));
+    if (globalRegExp.test(req.body.text)) {
+        if (req.body.text || req.file) {
+            return models.Comment.create({ 
+                text: req.body.text,
+                attachment: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : null,
+                UserId: userId,
+                PostId: req.params.id
+            })
+            .then(() => res.status(201).json({ message : 'Comment added succesfully !'}))
+            .catch(error => res.status(400).json({ error }));
+        }
+    } else {
+        res.status(401).json({
+            message: 'Bad Request'
+        });
     }
 }
 
@@ -33,44 +41,49 @@ exports.updateComment = (req, res) => {
             }
         })
         .then((comment) => {
-            if (comment.UserId === userId) {
-                const filename = comment.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
-            
-                fs.unlinkSync(`images/${filename}`);
+            if (globalRegExp.test(req.body.text)) {
+                if (comment.UserId === userId) {
+                    const filename = comment.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
                 
-                let commentObject = {
-                    ...req.body, 
-                    attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+                    fs.unlinkSync(`images/${filename}`);
+                    
+                    let commentObject = {
+                        ...req.body, 
+                        attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+                    }
+                    
+                    comment.update(commentObject, {
+                        where: {
+                            _id: req.params.id
+                        }
+                    })
+                    .then(
+                        () => {
+                            res.status(200).json({ message : 'comment updated successfully !'}); 
+                        }
+                    ).catch(
+                        error => {
+                            res.status(400).json({
+                                error
+                            });
+                        }
+                    )
+                } else {
+                    const filename = req.file.filename;                             
+                    fs.unlinkSync(`images/${filename}`);
+                    
+                    res.status(400).json({ message: "not allowed to update"});
                 }
-                
-                comment.update(commentObject, {
-                    where: {
-                        _id: req.params.id
-                    }
-                }
-                )
-                .then(
-                    () => {
-                        res.status(200).json({ message : 'comment updated successfully !'}); 
-                    }
-                ).catch(
-                    error => {
-                        res.status(400).json({
-                            error
-                        });
-                    }
-                )
             } else {
-                const filename = req.file.filename;                             
-                fs.unlinkSync(`images/${filename}`);
-                
-                res.status(400).json({ message: "not allowed to update"});
+                res.status(401).json({
+                    message: 'Bad Request'
+                });
             }
         })
         .catch(
             error => {
-                res.status(500).json({
-                    error
+                res.status(409).json({
+                    message: 'comment not found'
                 });
             }
         )
@@ -79,28 +92,42 @@ exports.updateComment = (req, res) => {
             where: {
                 _id: req.params.id
             }
-        }).then((comment) => {
-            if (comment.UserId === userId) {
-                comment.update(req.body, {
-                    where: {
-                        _id: req.params.id
-                    }
-                })
-                .then(
-                    () => {
-                        res.status(200).json({ message : 'comment updated successfully !'}); 
-                    }
-                ).catch(
-                    error => {
-                        res.status(400).json({
-                            error
-                        });
-                    }
-                )   
+        })
+        .then((comment) => {
+            if (globalRegExp.test(req.body.text)) {
+                if (comment.UserId === userId) {
+                    comment.update(req.body, {
+                        where: {
+                            _id: req.params.id
+                        }
+                    })
+                    .then(
+                        () => {
+                            res.status(200).json({ message : 'comment updated successfully !'}); 
+                        }
+                    ).catch(
+                        error => {
+                            res.status(400).json({
+                                error
+                            });
+                        }
+                    )   
+                } else {
+                    res.status(400).json({ message: "not allowed to update"});
+                }
             } else {
-                res.status(400).json({ message: "not allowed to update"});
+                res.status(401).json({
+                    message: 'Bad Request'
+                });
             }
         })
+        .catch(
+            error => {
+                res.status(409).json({
+                    message: 'comment not found'
+                });
+            }
+        )
     )
 }
 
@@ -153,6 +180,12 @@ exports.deleteComment = (req, res) => {
         }
     }).then((comment) => {
         if (comment.UserId === userId || admin === 1) {
+
+            if(comment.attachment != null) {
+                const filename = comment.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
+                fs.unlinkSync(`images/${filename}`);
+            }
+
             comment.destroy({
                 where: {
                     _id: req.params.id

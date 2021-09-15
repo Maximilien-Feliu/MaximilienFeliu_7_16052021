@@ -3,7 +3,6 @@ const dotenv = require( 'dotenv');
 const cors = require( 'cors');
 const path = require( 'path');
 const { sequelize } = require('./models/index');
-const formData = require('express-form-data');
 
 const helmet = require('helmet');
 const toobusy = require('toobusy-js'); 

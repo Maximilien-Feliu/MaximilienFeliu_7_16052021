@@ -134,12 +134,16 @@ export default createStore({
     },
     getUserByItsId: ({commit}, userId) => {
       commit('SET_STATUS', 'loading');
-      instance.get(`/auth/${userId.userId}`)
-      .then((response) => {
-        commit('PROFILE_USER', response.data);
-      })
-      .catch(() => {
-        commit('SET_STATUS', 'error_user');
+      return new Promise((resolve, reject) => {
+        instance.get(`/auth/${userId.userId}`)
+        .then((response) => {
+          commit('PROFILE_USER', response.data);
+          resolve(response);
+        })
+        .catch((error) => {
+          commit('SET_STATUS', 'error_user');
+          reject(error);
+        })
       })
     },
     updateProfile: ({commit}, updateInfos) => {
@@ -167,9 +171,9 @@ export default createStore({
         });
       });  
     },
-    deleteUser: ({commit}) => {
+    deleteUser: ({commit}, userId) => {
       commit('SET_STATUS', 'loading');  
-      instance.delete(`/auth/${user.userId}`)
+      instance.delete(`/auth/${userId}`)
       .then(() => {
         commit('SET_STATUS', 'user_deleted');
       })
@@ -291,7 +295,7 @@ export default createStore({
     updateComment: ({commit}, updateInfos) => {
       commit('SET_STATUS', 'loading');
       return new Promise((resolve, reject) => {
-        instance.put(`/post/${updateInfos.postId}/comment/${updateInfos.id}`, commentInfos.formData) 
+        instance.put(`/post/${updateInfos.postId}/comment/${updateInfos.id}`, updateInfos.formData) 
         .then((response) => {
           commit('SET_STATUS', 'comment_updated');
           resolve(response);

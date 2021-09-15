@@ -12,7 +12,7 @@
                     <textarea name="post_text" id="post_text" v-model="postText" placeholder="Écrivez quelque chose..." @click="growUp"></textarea>
                     <label for="post_file" id="btn_post_file"><i class="fas fa-images"></i>Image</label>
 
-                        <Emojis class="emojis_post" @append="updateInput"></Emojis>
+                        <Emojis class="emojis_post"></Emojis>
 
                     <div class="img_option">
                         <img id="preview_img" :class="{'hide' : !previewImage}" :src="previewImage" :alt="'Aperçu de l\'image du post de ' + `${userInfos.firstName}`">
@@ -67,14 +67,13 @@ export default {
                 formData.append('attachment', this.files);
             } 
             if(this.postText != '') {
-                formData.append('text', this.postText.match(/^[\w-.,\s\n\(\)!'"\?éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/));
+                formData.append('text', this.postText);
             }
             this.$store.dispatch('createPost', formData)
             .then(() => {
                 window.location.reload();
             })
-            .catch((error) => {
-                console.log(error);
+            .catch(() => {
                 if (this.status == 'error_regex') {
                     alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !')
                 
@@ -98,9 +97,6 @@ export default {
                 input.style.height = '4em';
                 input.style.cursor = 'pointer';
             }
-        },
-        updateInput (inputEmoji) {
-            this.postText += inputEmoji
         }
     }
 }

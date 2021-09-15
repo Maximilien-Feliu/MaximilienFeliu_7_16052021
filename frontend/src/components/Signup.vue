@@ -250,6 +250,7 @@ button:hover {
 }
 @media screen and (max-width: 768px) {
   #signup {
+    margin-top: 1.5em;
     width: 100%;
     display: flex;
     flex-direction: column;

@@ -2,13 +2,11 @@
     <div class="main_emojis">
         <div class="emojis_option">
             <span class="emojis_btn" @click="emojis = !emojis" aria-label="add_emoji">+<i class="far fa-smile-wink"></i></span>
-            <emoji-picker class="emojis" :class="{'hide' : !emojis}" @emoji-click='append'></emoji-picker>
         </div>
     </div>
 </template>
 
-<script>
-import 'emoji-picker-element' 
+<script> 
 export default {
     name: 'Emojis',
     data () {
@@ -22,13 +20,6 @@ export default {
             type: Number
         }
     },
-    methods: {
-        append (e) {
-            this.inputEmoji = e.detail.unicode; 
-            this.emojis = !this.emojis;
-            this.$emit('append', this.inputEmoji);
-        }
-    }
 }
 </script>
 

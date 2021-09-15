@@ -4,6 +4,10 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs');    
 const { Op } = require("sequelize");
 
+const nameRegExp = /^[\w-.'éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,100}$/;
+const departmentRegExp = /^[\w-.,/ "'éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,100}$/;
+const globalRegExp = /^[\w-.,\s\n\(\)!'"\?:éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/;
+
 /*****  create a new user   *****/
 exports.signup = (req, res) => {                   
     
@@ -74,47 +78,53 @@ exports.updateUser = (req, res) => {
             }
         })
         .then((user) => {
-            if (user._id === userId || admin === 1) {  
-                
-                if(user.attachment != fileDefault) {
-                    const filename = user.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
+            if (nameRegExp.test(req.body.firstName) && nameRegExp.test(req.body.lastName) && departmentRegExp.test(req.body.department) && globalRegExp.test(req.body.bio)) {
+                if (user._id === userId || admin === 1) {  
+                    
+                    if(user.attachment != fileDefault) {
+                        const filename = user.attachment.split('/images/')[1];                                   // get what comes after /images/ in the imageUrl (the filename)
+                        fs.unlinkSync(`images/${filename}`);
+                    }
+                    
+                    let userObject = {
+                        ...req.body, 
+                        attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+                    }
+                    
+                    user.update(userObject, {
+                        where: {
+                            _id: req.params.id
+                        }
+                    })
+                    .then( 
+                        () => {
+                            res.status(200).json({
+                                message: 'User updated successfully !'
+                            }); 
+                        }
+                    ).catch(
+                        error => {
+                            res.status(400).json({
+                                error 
+                            });
+                        }
+                    )
+                } else {
+                    const filename = req.file.filename;                             
                     fs.unlinkSync(`images/${filename}`);
-                }
-                
-                let userObject = {
-                    ...req.body, 
-                    attachment: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-                }
-                
-                user.update(userObject, {
-                    where: {
-                        _id: req.params.id
-                    }
-                })
-                .then( 
-                    () => {
-                        res.status(200).json({
-                            message: 'User updated successfully !'
-                        }); 
-                    }
-                ).catch(
-                    error => {
-                        res.status(400).json({
-                            error 
-                        });
-                    }
-                )
-            } else {
-                const filename = req.file.filename;                             
-                fs.unlinkSync(`images/${filename}`);
 
-                res.status(403).json({ message: "not allowed to update"});
-            }
+                    res.status(403).json({ message: "not allowed to update"});
+                }
+            } else {
+                res.status(401).json({
+                    message: 'Bad Request'
+                });
+            }   
         })
         .catch(
             error => {
                 res.status(500).json({
-                    message: 'ça vient de là'
+                    message: error
                 });
             } 
         )
@@ -125,26 +135,32 @@ exports.updateUser = (req, res) => {
             }
         })
         .then((user) => {
-            if (user._id === userId || admin === 1) {
-                user.update(req.body, {
-                    where: {
-                        _id: req.params.id
-                    }
-                })
-                .then(
-                    res.status(200).json({
-                        message: 'User updated successfully !'
+            if (nameRegExp.test(req.body.firstName) && nameRegExp.test(req.body.lastName) && departmentRegExp.test(req.body.department) && globalRegExp.test(req.body.bio)) {
+                if (user._id === userId || admin === 1) {
+                    user.update(req.body, {
+                        where: {
+                            _id: req.params.id
+                        }
                     })
-                )
-                .catch(
-                    error => {
-                        res.status(400).json({
-                            error
-                        });
-                    }
-                ) 
+                    .then(
+                        res.status(200).json({
+                            message: 'User updated successfully !'
+                        })
+                    )
+                    .catch(
+                        error => {
+                            res.status(400).json({
+                                error
+                            });
+                        }
+                    ) 
+                } else {
+                    res.status(403).json({ message: "not allowed to update"});
+                }
             } else {
-                res.status(403).json({ message: "not allowed to update"});
+                res.status(401).json({
+                    message: 'Bad Request'
+                });
             }      
         }) 
     )
@@ -154,8 +170,8 @@ exports.getAllUsers = (req, res) => {
     models.User.findAll({
         where: {
             firstName: {
-                [Op.like]: '%' + req.body.firstName + '%' 
-            } 
+                [Op.like]: '%' + req.body.firstName + '%'
+            }
         }
     })
     .then(users => {

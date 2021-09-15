@@ -7,7 +7,9 @@
             <router-link :to="`/ProfileUser/${user._id}`" class="user_router miniature_list_option">
                 Mon profil
             </router-link>
-            <div class="user_logout miniature_list_option" @click="logOut">Se déconnecter</div>
+            <div class="user_logout miniature_list_option" @click="logOut">
+                Se déconnecter
+            </div>
         </div>
     </div>
 </template>
@@ -68,7 +70,8 @@ export default {
     align-items: center;
     justify-content: space-between;
     position: absolute;
-    background-color: rgba(0, 153, 255, 0.651);
+    border: 3px solid black;
+    background-color: rgb(253, 253, 253);
     right: 2em;
     height: 3em;
     width: 300px;
@@ -83,9 +86,6 @@ export default {
     font-weight: bold;
     height: 100%;
     color: black;
-}
-.miniature_list_option:hover {
-    background-color: rgba(236, 248, 255, 0.356);
 }
 .user_logout:hover {
     cursor: pointer;

@@ -6,7 +6,6 @@ exports.addReaction = (req, res) => {
     const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);       // verify the token
     const userId = decodedToken.userId;                                     // get the userId when it's decoded
 
-    console.log(req.body.reaction);
     return models.PostReaction.create({
         reaction: req.body.reaction,
         UserId: userId,  

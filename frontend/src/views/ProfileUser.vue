@@ -71,7 +71,7 @@
                         <div v-if="deleteUser" class="check_delete">
                         <h2 class="bold">Etes vous sûr de vouloir supprimer ce compte ?</h2>
                         <div class="btn_check_container">
-                            <button type="button" class="btn_check" @click="deleteProfile">Oui</button>
+                            <button type="button" class="btn_check" @click="deleteProfile(userInfos, profileUser._id)">Oui</button>
                             <button type="button" class="btn_check" @click="deleteUser = !deleteUser">Non</button>
                         </div>
                     </div>
@@ -115,11 +115,16 @@ export default {
     mounted: function () {
         this.$store.dispatch('getUserByItsId', {
             userId: this.$route.params.userId,
-        });
+        }).catch(() => {
+            this.$router.push('/');
+        })
+
         this.$store.dispatch('getUserInfos');
+
         this.$store.dispatch('getAllPostsByUserId', {
             id: this.$route.params.userId,
         })
+
         if (this.$store.state.user.userId == -1) {
             this.$router.push('/home');
             return;
@@ -145,16 +150,16 @@ export default {
                 formData.append('attachment', this.files);
             }
             if(this.firstName != '') {
-                formData.append('firstName', this.firstName.match(/^[\w-.'éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,100}$/));
+                formData.append('firstName', this.firstName)
             }
             if(this.lastName != '') {
-                formData.append('lastName', this.lastName.match(/^[\w-.'éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,100}$/));
+                formData.append('lastName', this.lastName);
             }
             if(this.department != '') {
-                formData.append('department', this.department.match(/^[\w-.,\s\n\(\)!'"\?éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/));
+                formData.append('department', this.department);
             }
             if(this.bio != '') {
-                formData.append('bio', this.bio.match(/^[\w-.,\s\n\(\)!'"\?éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/));
+                formData.append('bio', this.bio);
             }
 
             this.$store.dispatch('updateProfile', formData) 
@@ -173,9 +178,13 @@ export default {
                 }
             })
         },
-        deleteProfile () {
-            this.$store.dispatch('deleteUser');
-            localStorage.removeItem('user');
+        deleteProfile (user, userId) {
+            this.$store.dispatch('deleteUser', userId);
+
+            if (user.isAdmin === 0) {
+                localStorage.removeItem('user');
+            }
+
             window.location.reload();
         },
     }
@@ -242,6 +251,7 @@ Header {
 .user_bio {
     width: 90%;
     margin-left: 5%;
+    font-style: italic;
 }
 .main_timeline {
     position: relative;

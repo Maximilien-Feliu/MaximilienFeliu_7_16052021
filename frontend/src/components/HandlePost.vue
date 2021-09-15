@@ -18,7 +18,7 @@
 
             <div class="post_content">
                 <textarea class="post_modal_textarea" v-model="postInput" name="post_text" autofocus></textarea>
-                <Emojis class="emojis_post_modal" @append="updateInput"></Emojis>
+                <Emojis class="emojis_post_modal"></Emojis>
 
                 <img v-if="postToHandle.attachment || previewImage" class="img_post" :src="previewImage || postToHandle.attachment" :alt="'attachement relié à la publication de ' + `${postToHandle.User.firstName}`">
                 <div class="img_option_modal">         
@@ -99,9 +99,6 @@ export default {
                 this.checkDelete = !this.checkDelete
             }
         },
-        updateInput (inputEmoji) {
-            this.postInput += inputEmoji
-        },
         uploadImage(e){
             this.files = e.target.files[0];
             this.previewImage = URL.createObjectURL(this.files);
@@ -113,7 +110,7 @@ export default {
                 formData.append('attachment', this.files);
             } 
             if(this.postInput != null) {
-                formData.append('text', this.postInput.match(/^[\w-.,\s\n\(\)!'"\?éèîïÉÈÎÏàçùüöôœÀÇÙÜÖÔ]{1,300}$/));
+                formData.append('text', this.postInput);
             }
 
             this.$store.dispatch('updatePost', {
@@ -126,7 +123,7 @@ export default {
             })
             .catch(() => {
                 console.log(formData)
-                if (this.status == 'error_regex') {
+                if (this.status == 'error_update_regex') {
                     alert('Attention ! Certains caractères spéciaux ne peuvent pas être utilisés ("$","=",...) !')
                 
                 } else {
